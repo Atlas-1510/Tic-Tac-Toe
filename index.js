@@ -1,17 +1,51 @@
+const gameBoardDiv = document.getElementById("gameBoard");
+
 const Gameboard = (() => {
     // What does a gameboard do? Store information, and update appearance for users
     let gameboard = [
-        [null, null, null],
-        [null, null, null],
-        [null, null, null],
+        [null, false, null],
+        [true, null, true],
+        [null, false, null],
     ]
-    // Link up the DOM to the javascript elements - Private
-    console.log("DOM elements have been linked")
+    // Link up the DOM to the javascript elements, and add event listeners - Private
+    const tiles = [];
+    for (let i = 0; i < gameboard.length; i++) {
+        let row = [];
+        for (let j = 0; j < gameboard.length; j++) {
+            let tile = gameBoardDiv.querySelector(`#tile-${i}-${j}`)
+            row.push(tile)
+            tile.addEventListener("click", (event) => {
+                console.log(event.target)
+                updateTile(event.target)
+            })
+        }
+        tiles.push(row)
+    }
+    console.log("DOM elements have been linked and listeners added")
+
+    updateTile = (tile) => {
+        let player = Game.getActivePlayer();
+
+    }
+
+
+
     // Render/Update the DOM elements - Public
     render = () => {
+        for (let row = 0; row < tiles.length; row++) {
+            for (let col = 0; col < tiles.length; col++) {
+                if (gameboard[row][col] == true) {
+                    tiles[row][col].textContent = "X"
+                } else if (gameboard[row][col] == false) {
+                    tiles[row][col].textContent = "O"
+                } else {
+                    tiles[row][col].textContent = ""
+                }
+            }
+        }
         console.log("Gameboard has been rendered")
     }
-    return { gameboard, render }
+    return { gameboard, render, updateTile }
 })()
 
 const playerFactory = (name) => {
@@ -29,6 +63,22 @@ const Game = (() => {
     const playerOne = playerFactory("Player One")
     const playerTwo = playerFactory("Player Two")
 
+    getActivePlayer = () => {
+        if (!playerOne.playerTurn && !playerTwo.playerTurn) {
+            playerOne.playerTurn = true;
+            playerTwo.playerTurn = false;
+        } else if (playerOne.playerTurn) {
+            return playerOne
+        } else {
+            return playerTwo
+        }
+    }
+
+    toggleActivePlayer = () => {
+        playerOne.playerTurn = !playerOne.playerTurn;
+        playerTwo.playerTurn = !playerTwo.playerTurn;
+    }
+
     playRound = () => {
         playerOne.makeMove();
         _checkVictory(playerOne);
@@ -37,49 +87,54 @@ const Game = (() => {
     }
 
     _checkVictory = (player) => {
+        // Checks array to see if all the same, i.e a winning combination
+        _checkWin = (array, player) => {
+            let check = array.every((item) => {
+                if (item == array[0] && array[0] != null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+            if (check) {
+                _endGame(player);
+            }
+        }
+
         // Analyse gameboard for victory
         let victoryMatrix = [...Gameboard.gameboard]
-        console.log(victoryMatrix);
         // Check rows for victory
         for (let i = 0; i < victoryMatrix.length; i++) {
             let row = victoryMatrix[i];
-            var rowSum = row.reduce((a, b) => { return a + b }, 0);
-        }
-        console.log(rowSum);
-        if (rowSum == 3 || rowSum == 0) {
-            endGame(player);
+            _checkWin(row, player);
         }
         // Check columns for victory
         for (let col = 0; col < 3; col++) {
-            let colSum = 0;
-            for (row = 0; row < victoryMatrix.length; row++) {
-                colSum += victoryMatrix[row][col]
+            let colArray = [];
+            for (let row = 0; row < victoryMatrix.length; row++) {
+                colArray.push(victoryMatrix[row][col])
             }
-            if (colSum == 3 || colSum == 0) {
-                endGame(player);
-            }
+            _checkWin(colArray, player)
         }
         // Check diagonals for victory
-        let diagSum = 0;
+        let diagArray = [];
         for (let index = 0; index < victoryMatrix.length; index++) {
-            diagSum += victoryMatrix[index][index]
+            diagArray.push(victoryMatrix[index][index]);
         }
-        if (diagSum == 3 || diagSum == 0) {
-            endGame(player);
-        }
-        diagSum = 0;
+        _checkWin(diagArray);
+        diagArray = [];
         for (let index = 0; index < victoryMatrix.length; index++) {
-            diagSum += victoryMatrix[index][2 - index]
+            diagArray.push(victoryMatrix[index][2 - index])
         }
-        if (diagSum == 3 || diagSum == 0) {
-            endGame(player);
-        }
+        _checkWin(diagArray, player);
     }
 
-    endGame = (player) => {
+    _endGame = (player) => {
         console.log(`${player.name} won the game!`)
     }
-    playRound();
+
+    return { playRound, getActivePlayer, toggleActivePlayer }
 })()
 
+Game.playRound();
 
