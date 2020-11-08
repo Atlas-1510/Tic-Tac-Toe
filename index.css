@@ -1,0 +1,12 @@
+#gameBoardHolder {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#gameBoard {
+    width: 25%;
+    height: 25%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
