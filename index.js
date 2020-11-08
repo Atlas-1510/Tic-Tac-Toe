@@ -22,7 +22,7 @@ const playerFactory = (name) => {
     }
     // variable to determine whether it is the players move or not
     let playerTurn;
-    return { makeMove, playerTurn }
+    return { makeMove, playerTurn, name }
 }
 
 const Game = (() => {
@@ -39,13 +39,15 @@ const Game = (() => {
     _checkVictory = (player) => {
         // Analyse gameboard for victory
         let victoryMatrix = [...Gameboard.gameboard]
+        console.log(victoryMatrix);
         // Check rows for victory
         for (let i = 0; i < victoryMatrix.length; i++) {
             let row = victoryMatrix[i];
-            let rowSum = row.reduce((a, b) => { return a + b });
-            if (rowSum == 3) {
-                endGame(player);
-            }
+            var rowSum = row.reduce((a, b) => { return a + b }, 0);
+        }
+        console.log(rowSum);
+        if (rowSum == 3 || rowSum == 0) {
+            endGame(player);
         }
         // Check columns for victory
         for (let col = 0; col < 3; col++) {
@@ -53,7 +55,7 @@ const Game = (() => {
             for (row = 0; row < victoryMatrix.length; row++) {
                 colSum += victoryMatrix[row][col]
             }
-            if (colSum == 3) {
+            if (colSum == 3 || colSum == 0) {
                 endGame(player);
             }
         }
@@ -62,20 +64,20 @@ const Game = (() => {
         for (let index = 0; index < victoryMatrix.length; index++) {
             diagSum += victoryMatrix[index][index]
         }
-        if (diagSum == 3) {
+        if (diagSum == 3 || diagSum == 0) {
             endGame(player);
         }
         diagSum = 0;
         for (let index = 0; index < victoryMatrix.length; index++) {
             diagSum += victoryMatrix[index][2 - index]
         }
-        if (diagSum == 3) {
+        if (diagSum == 3 || diagSum == 0) {
             endGame(player);
         }
     }
 
     endGame = (player) => {
-        console.log(`${player} won the game!`)
+        console.log(`${player.name} won the game!`)
     }
     playRound();
 })()
