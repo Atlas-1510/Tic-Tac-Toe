@@ -36,7 +36,6 @@ const Gameboard = (() => {
         }
         console.log("Gameboard has been rendered")
     }
-
     return { gameboard, render, tiles }
 })()
 
@@ -91,6 +90,7 @@ const Game = (() => {
             let row = victoryMatrix[i];
             if (_checkWin(row, player)) {
                 endGame(player)
+                return
             }
         }
         // Check columns for victory
@@ -101,6 +101,7 @@ const Game = (() => {
             }
             if (_checkWin(colArray, player)) {
                 endGame(player);
+                return
             }
         }
         // Check diagonals for victory
@@ -110,6 +111,7 @@ const Game = (() => {
         }
         if (_checkWin(diagArray, player)) {
             endGame(player)
+            return
         }
         diagArray = [];
         for (let index = 0; index < victoryMatrix.length; index++) {
@@ -117,91 +119,50 @@ const Game = (() => {
         }
         if (_checkWin(diagArray, player)) {
             endGame(player)
+            return
         };
+        // Check if draw
+        for (let row = 0; row < victoryMatrix.length; row++) {
+            for (let col = 0; col < victoryMatrix.length; col++) {
+                if (victoryMatrix[row][col] == null) {
+                    return
+                }
+            }
+        }
+        drawGame();
     }
 
     endGame = (player) => {
         console.log("endgame function here");
     }
 
+    drawGame = () => {
+        console.log("this game is a draw")
+    }
+
     makeMove = (e) => {
-        console.log("active")
         let tile = e.target;
         let row = tile.dataset.row
         let col = tile.dataset.col
         let player = Game.getActivePlayer();
-        console.log(player);
         Gameboard.gameboard[row][col] = (player == Game.playerOne) ? true : false;
         render();
         checkVictory(player);
         toggleActivePlayer();
+        tile.removeEventListener("click", Game.makeMove)
     }
 
     return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove }
 })()
 
+// Adding Tic-Tac-Toe tile listeners after elements and functionality have initialised
 const addListeners = (() => {
-
-
     Gameboard.tiles.forEach((row) => {
         for (let col = 0; col < row.length; col++) {
             let tile = row[col]
-            // console.log(tile);
             tile.addEventListener("click", Game.makeMove);
         }
     })
 })()
 
 Gameboard.render();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Gameboard.render();
-
-
-
-
-// tile.addEventListener("click", Game.makeMove(tile))
-
-
-// makeMove = (tile) => {
-//     _updateTile = (tile, player) => {
-//         console.log(`player = ${player.name}`)
-//         let row = tile.dataset.row
-//         let col = tile.dataset.col
-//         Gameboard.gameboard[row][col] = (player == Game.playerOne) ? true : false;
-//     }
-
-//     let player = Game.getActivePlayer();
-//     _updateTile(tile, player)
-//     Gameboard.render()
-//     Game.checkVictory(player)
-//     Game.toggleActivePlayer()
-
-
-// }
