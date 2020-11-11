@@ -140,8 +140,8 @@ const Game = (() => {
         console.log("this game is a draw")
     }
 
-    makeMove = (e) => {
-        let tile = e.target;
+    makeMove = (event) => {
+        let tile = event.target;
         let row = tile.dataset.row
         let col = tile.dataset.col
         let player = Game.getActivePlayer();
