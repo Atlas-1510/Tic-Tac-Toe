@@ -124,11 +124,7 @@ const Game = (() => {
         console.log("endgame function here");
     }
 
-    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo }
-})()
-
-const addListeners = (() => {
-    _makeMove = (e) => {
+    makeMove = (e) => {
         console.log("active")
         let tile = e.target;
         let row = tile.dataset.row
@@ -141,11 +137,17 @@ const addListeners = (() => {
         toggleActivePlayer();
     }
 
+    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove }
+})()
+
+const addListeners = (() => {
+
+
     Gameboard.tiles.forEach((row) => {
         for (let col = 0; col < row.length; col++) {
             let tile = row[col]
             // console.log(tile);
-            tile.addEventListener("click", _makeMove);
+            tile.addEventListener("click", Game.makeMove);
         }
     })
 })()
