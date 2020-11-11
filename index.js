@@ -127,6 +127,58 @@ const Game = (() => {
     return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo }
 })()
 
+const addListeners = (() => {
+    _makeMove = (e) => {
+        console.log("active")
+        let tile = e.target;
+        let row = tile.dataset.row
+        let col = tile.dataset.col
+        let player = Game.getActivePlayer();
+        console.log(player);
+        Gameboard.gameboard[row][col] = (player == Game.playerOne) ? true : false;
+        render();
+        checkVictory(player);
+        toggleActivePlayer();
+    }
+
+    Gameboard.tiles.forEach((row) => {
+        for (let col = 0; col < row.length; col++) {
+            let tile = row[col]
+            // console.log(tile);
+            tile.addEventListener("click", _makeMove);
+        }
+    })
+})()
+
+Gameboard.render();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Gameboard.render();
 
 
