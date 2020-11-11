@@ -152,17 +152,15 @@ const Game = (() => {
         tile.removeEventListener("click", Game.makeMove)
     }
 
-    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove }
-})()
-
-// Adding Tic-Tac-Toe tile listeners after elements and functionality have initialised
-const addListeners = (() => {
     Gameboard.tiles.forEach((row) => {
         for (let col = 0; col < row.length; col++) {
             let tile = row[col]
-            tile.addEventListener("click", Game.makeMove);
+            tile.addEventListener("click", makeMove);
         }
     })
+
+    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove }
 })()
+
 
 Gameboard.render();
