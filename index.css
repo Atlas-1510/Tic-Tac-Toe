@@ -4,8 +4,12 @@ body {
     align-items: center;
     flex-direction: column;
 }
+
+/* :root {
+    --margin: 2%;
+} */
+
 #gameBoardHolder {
-    display: flex;
     justify-content: center;
     align-items: center;
     width: 200px;
@@ -13,6 +17,7 @@ body {
     min-width: 50vmax;
     min-height: 50vmax;
     background-color: antiquewhite;
+    display: none;
 }
 
 #gameBoard {
@@ -25,7 +30,40 @@ body {
 
 #header {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    width: 100%;
+    --margin: 2%;
+}
+
+#playersDiv {
+    display: flex;
+    justify-content: space-around;
+    width: 50%;
+}
+
+.player {
+    display: flex;
+    flex-direction: column;
+}
+
+.playerButtons {
+    display: flex;
+    flex-direction: column;
+    margin: var(--margin)
+}
+
+.playerButtons > button {
+    margin: var(--margin)
+}
+
+.activeButton {
+    background-color: orange;
+}
+
+#startButton {
+    margin: var(--margin)
 }
 
 .tile {

@@ -36,6 +36,7 @@ const Gameboard = (() => {
         }
         console.log("Gameboard has been rendered")
     }
+
     return { gameboard, render, tiles }
 })()
 
@@ -66,6 +67,17 @@ const Game = (() => {
         playerOne.playerTurn = !playerOne.playerTurn;
         playerTwo.playerTurn = !playerTwo.playerTurn;
     }
+
+    _highlightActivePlayer = () => {
+        const playerTitles = document.querySelectorAll(".playerTitle")
+        const activePlayer = Game.getActivePlayer()
+        console.log(activePlayer)
+        console.log(playerTitles)
+        playerTitles.forEach((title) => {
+            let DOMtitle = title.
+        })
+    }
+
 
     checkVictory = (player) => {
         // Checks array to see if all the same, i.e a winning combination
@@ -188,6 +200,7 @@ const Game = (() => {
         render();
         checkVictory(player);
         toggleActivePlayer();
+        _highlightActivePlayer();
         tile.removeEventListener("click", Game.makeMove)
     }
 
@@ -202,4 +215,62 @@ const Game = (() => {
 })()
 
 
+const header = (() => {
+
+    const buttonFunctionality = (() => {
+        const startButton = document.getElementById("startButton")
+        const gameBoardHolder = document.getElementById("gameBoardHolder")
+        const playerButtons = document.querySelectorAll(".playerButtons")
+
+        // Start button to show gameboard, and hide other buttons
+        startButton.addEventListener("click", () => {
+            gameBoardHolder.style.display = "flex";
+            startButton.style.display = "none";
+            playerButtons.forEach((div) => {
+                div.style.display = "none";
+            })
+        })
+
+        _toggleButton = (event) => {
+            console.log(event)
+            let target = event.path[0]
+            let parent = event.path[1]
+            let siblings = [];
+            for (let child = 0; child < parent.children.length; child++) {
+                if (parent.children[child] != target) {
+                    siblings.push(parent.children[child])
+                }
+            }
+
+            target.classList.add("activeButton")
+            for (let child = 0; child < siblings.length; child++) {
+                siblings[child].classList.remove("activeButton")
+            }
+
+            console.log(target)
+            console.log(parent)
+            console.log(siblings)
+        }
+
+        // Select human or AI
+        playerButtons.forEach((player) => {
+            let buttons = player.querySelectorAll("button")
+            buttons.forEach((button) => {
+                button.addEventListener("click", _toggleButton)
+            })
+        })
+
+
+    })()
+})()
+
+
+
+
+
+
+
+
+
 Gameboard.render();
+
