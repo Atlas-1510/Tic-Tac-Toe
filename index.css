@@ -31,9 +31,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    --border: 2px solid red;
+    font-size: 4rem;
+
+    --border: 2px solid black;
 }
 
+
+/* Tic-Tac-Toe Grid */
 .tile:nth-child(n+2):nth-child(-n+3) {
     border-left: var(--border)
 }
