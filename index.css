@@ -1,12 +1,38 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
 #gameBoardHolder {
     display: flex;
-    flex-direction: row;
     justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+    min-width: 50vmax;
+    min-height: 50vmax;
+    background-color: antiquewhite;
 }
 
 #gameBoard {
-    width: 25%;
-    height: 25%;
+    width: 70%;
+    height: 70%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    grid-gap: 3px;
+    background-color: black;
+
+}
+
+#header {
+    display: flex;
+    justify-content: center;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: antiquewhite;
 }
