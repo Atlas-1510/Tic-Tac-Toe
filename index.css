@@ -20,9 +20,6 @@ body {
     height: 70%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-gap: 3px;
-    background-color: black;
-
 }
 
 #header {
@@ -34,5 +31,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: antiquewhite;
+    --border: 2px solid red;
+}
+
+.tile:nth-child(n+2):nth-child(-n+3) {
+    border-left: var(--border)
+}
+.tile:nth-child(n+5):nth-child(-n+6) {
+    border-left: var(--border)
+}
+.tile:nth-child(n+8):nth-child(-n+9) {
+    border-left: var(--border)
+}
+.tile:nth-child(-n+6) {
+    border-bottom: var(--border)
 }
