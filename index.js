@@ -84,47 +84,46 @@ const Game = (() => {
         }
 
         // Analyse gameboard for victory
-        let victoryMatrix = [...Gameboard.gameboard]
         // Check rows for victory
-        for (let i = 0; i < victoryMatrix.length; i++) {
-            let row = victoryMatrix[i];
+        for (let i = 0; i < Gameboard.gameboard.length; i++) {
+            let row = Gameboard.gameboard[i];
             if (_checkWin(row, player)) {
-                endGame(player)
+                endGame(player, "row", i)
                 return
             }
         }
         // Check columns for victory
         for (let col = 0; col < 3; col++) {
             let colArray = [];
-            for (let row = 0; row < victoryMatrix.length; row++) {
-                colArray.push(victoryMatrix[row][col])
+            for (let row = 0; row < Gameboard.gameboard.length; row++) {
+                colArray.push(Gameboard.gameboard[row][col])
             }
             if (_checkWin(colArray, player)) {
-                endGame(player);
+                endGame(player, "column", col);
                 return
             }
         }
         // Check diagonals for victory
         let diagArray = [];
-        for (let index = 0; index < victoryMatrix.length; index++) {
-            diagArray.push(victoryMatrix[index][index]);
+        for (let index = 0; index < Gameboard.gameboard.length; index++) {
+            diagArray.push(Gameboard.gameboard[index][index]);
         }
         if (_checkWin(diagArray, player)) {
-            endGame(player)
+            endGame(player, "diagonal")
             return
         }
         diagArray = [];
-        for (let index = 0; index < victoryMatrix.length; index++) {
-            diagArray.push(victoryMatrix[index][2 - index])
+        for (let index = 0; index < Gameboard.gameboard.length; index++) {
+            diagArray.push(Gameboard.gameboard[index][2 - index])
         }
         if (_checkWin(diagArray, player)) {
-            endGame(player)
+            endGame(player, "reverseDiagonal")
             return
         };
         // Check if draw
-        for (let row = 0; row < victoryMatrix.length; row++) {
-            for (let col = 0; col < victoryMatrix.length; col++) {
-                if (victoryMatrix[row][col] == null) {
+        for (let row = 0; row < Gameboard.gameboard.length; row++) {
+            for (let col = 0; col < Gameboard.gameboard.length; col++) {
+                if (Gameboard.gameboard[row][col] == null) {
                     return
                 }
             }
@@ -132,8 +131,44 @@ const Game = (() => {
         drawGame();
     }
 
-    endGame = (player) => {
+    endGame = (player, victoryType, index) => {
+
+        _highlightTiles = (tiles) => {
+            for (let tile = 0; tile < tiles.length; tile++) {
+                tiles[tile].classList.add("victoryTile")
+            }
+        }
+
         console.log("endgame function here");
+        // Row victory
+        if (victoryType == "row") {
+            let victoryTiles = Gameboard.tiles[index];
+            _highlightTiles(victoryTiles)
+        }
+        // Column victory
+        if (victoryType == "column") {
+            let victoryTiles = [];
+            for (let row = 0; row < Gameboard.gameboard.length; row++) {
+                victoryTiles.push(Gameboard.tiles[row][index])
+            }
+            _highlightTiles(victoryTiles)
+        }
+        // Diagonal victory (top left - bottom right)
+        if (victoryType == "diagonal") {
+            let victoryTiles = [];
+            for (let index = 0; index < Gameboard.gameboard.length; index++) {
+                victoryTiles.push(Gameboard.tiles[index][index])
+            }
+            _highlightTiles(victoryTiles)
+        }
+        // Diagonal victory (top right - bottom left)
+        if (victoryType == "reverseDiagonal") {
+            let victoryTiles = [];
+            for (let index = 0; index < Gameboard.gameboard.length; index++) {
+                victoryTiles.push(Gameboard.tiles[index][2 - index])
+            }
+            _highlightTiles(victoryTiles)
+        }
     }
 
     drawGame = () => {

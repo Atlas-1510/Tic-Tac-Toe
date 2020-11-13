@@ -36,6 +36,9 @@ body {
     --border: 2px solid black;
 }
 
+.victoryTile {
+    background-color: aqua;
+}
 
 /* Tic-Tac-Toe Grid */
 .tile:nth-child(n+2):nth-child(-n+3) {
