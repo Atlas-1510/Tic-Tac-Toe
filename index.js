@@ -30,7 +30,7 @@ const Gameboard = (() => {
                 } else if (gameboard[row][col] == false) {
                     tiles[row][col].textContent = "O"
                 } else {
-                    Gameboard.tiles[row][col].textContent = "."
+                    Gameboard.tiles[row][col].textContent = " "
                 }
             }
         }
@@ -139,36 +139,40 @@ const Game = (() => {
             }
         }
 
+        _removeListeners = () => {
+            for (let row = 0; row < Gameboard.tiles.length; row++) {
+                for (let col = 0; col < Gameboard.tiles.length; col++) {
+                    Gameboard.tiles[row][col].removeEventListener("click", Game.makeMove)
+                }
+            }
+        }
+
         console.log("endgame function here");
+        let victoryTiles = [];
         // Row victory
         if (victoryType == "row") {
-            let victoryTiles = Gameboard.tiles[index];
-            _highlightTiles(victoryTiles)
+            victoryTiles = Gameboard.tiles[index];
         }
         // Column victory
-        if (victoryType == "column") {
-            let victoryTiles = [];
+        else if (victoryType == "column") {
             for (let row = 0; row < Gameboard.gameboard.length; row++) {
                 victoryTiles.push(Gameboard.tiles[row][index])
             }
-            _highlightTiles(victoryTiles)
         }
         // Diagonal victory (top left - bottom right)
-        if (victoryType == "diagonal") {
-            let victoryTiles = [];
+        else if (victoryType == "diagonal") {
             for (let index = 0; index < Gameboard.gameboard.length; index++) {
                 victoryTiles.push(Gameboard.tiles[index][index])
             }
-            _highlightTiles(victoryTiles)
         }
         // Diagonal victory (top right - bottom left)
-        if (victoryType == "reverseDiagonal") {
-            let victoryTiles = [];
+        else if (victoryType == "reverseDiagonal") {
             for (let index = 0; index < Gameboard.gameboard.length; index++) {
                 victoryTiles.push(Gameboard.tiles[index][2 - index])
             }
-            _highlightTiles(victoryTiles)
         }
+        _highlightTiles(victoryTiles)
+        _removeListeners()
     }
 
     drawGame = () => {
