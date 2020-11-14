@@ -30,11 +30,10 @@ const Gameboard = (() => {
                 } else if (gameboard[row][col] == false) {
                     tiles[row][col].textContent = "O"
                 } else {
-                    Gameboard.tiles[row][col].textContent = " "
+                    tiles[row][col].textContent = " "
                 }
             }
         }
-        console.log("Gameboard has been rendered")
     }
 
     return { gameboard, render, tiles }
@@ -71,10 +70,14 @@ const Game = (() => {
     _highlightActivePlayer = () => {
         const playerTitles = document.querySelectorAll(".playerTitle")
         const activePlayer = Game.getActivePlayer()
-        console.log(activePlayer)
-        console.log(playerTitles)
-        playerTitles.forEach((title) => {
-            let DOMtitle = title.
+        playerTitles.forEach((player) => {
+            let DOMtitle = player.innerHTML
+            let activePlayerTitle = activePlayer.name
+            if (DOMtitle == activePlayerTitle) {
+                player.classList.add("activeTitle")
+            } else {
+                player.classList.remove("activeTitle")
+            }
         })
     }
 
@@ -185,10 +188,17 @@ const Game = (() => {
         }
         _highlightTiles(victoryTiles)
         _removeListeners()
+
+
+        const playersDiv = document.getElementById("playersDiv")
+        playersDiv.style.display = "none"
+        const victoryInfo = document.getElementById("victoryInfo")
+        victoryInfo.style.display = "flex"
     }
 
     drawGame = () => {
         console.log("this game is a draw")
+
     }
 
     makeMove = (event) => {
@@ -204,14 +214,17 @@ const Game = (() => {
         tile.removeEventListener("click", Game.makeMove)
     }
 
-    Gameboard.tiles.forEach((row) => {
-        for (let col = 0; col < row.length; col++) {
-            let tile = row[col]
-            tile.addEventListener("click", makeMove);
-        }
-    })
+    addListeners = () => {
+        Gameboard.tiles.forEach((row) => {
+            for (let col = 0; col < row.length; col++) {
+                let tile = row[col]
+                tile.addEventListener("click", makeMove);
+            }
+        })
+    }
+    addListeners();
 
-    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove }
+    return { getActivePlayer, toggleActivePlayer, playerOne, playerTwo, makeMove, addListeners }
 })()
 
 
@@ -232,7 +245,6 @@ const header = (() => {
         })
 
         _toggleButton = (event) => {
-            console.log(event)
             let target = event.path[0]
             let parent = event.path[1]
             let siblings = [];
@@ -246,10 +258,6 @@ const header = (() => {
             for (let child = 0; child < siblings.length; child++) {
                 siblings[child].classList.remove("activeButton")
             }
-
-            console.log(target)
-            console.log(parent)
-            console.log(siblings)
         }
 
         // Select human or AI
@@ -260,17 +268,34 @@ const header = (() => {
             })
         })
 
+        _rematch = () => {
+            // Clear gameboard
+            for (let i = 0; i < Gameboard.gameboard.length; i++) {
+                Gameboard.gameboard[i].fill(null)
+            }
+            // Unhighlight victory cells
+            for (let i = 0; i < Gameboard.gameboard.length; i++) {
+                for (let j = 0; j < Gameboard.gameboard.length; j++) {
+                    Gameboard.tiles[i][j].classList.remove("victoryTile")
+                }
+            }
+            // Hide victoryInfo and reveal playerDiv
+            const playersDiv = document.getElementById("playersDiv")
+            playersDiv.style.display = "flex"
+            const victoryInfo = document.getElementById("victoryInfo")
+            victoryInfo.style.display = "none"
+            Game.addListeners();
 
+            // Update gameboard
+            Gameboard.render();
+        }
+
+
+        // Play again button
+        const playAgain = document.getElementById("playAgain")
+        playAgain.addEventListener("click", _rematch)
     })()
 })()
-
-
-
-
-
-
-
-
 
 Gameboard.render();
 
