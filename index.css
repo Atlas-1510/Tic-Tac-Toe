@@ -84,6 +84,10 @@ body {
     background-color: aqua;
 }
 
+.drawTile {
+    background: rgba(255, 93, 93, 0.459);
+}
+
 /* Tic-Tac-Toe Grid */
 .tile:nth-child(n+2):nth-child(-n+3) {
     border-left: var(--border)

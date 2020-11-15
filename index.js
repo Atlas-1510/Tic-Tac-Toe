@@ -139,6 +139,7 @@ const Game = (() => {
         for (let row = 0; row < Gameboard.gameboard.length; row++) {
             for (let col = 0; col < Gameboard.gameboard.length; col++) {
                 if (Gameboard.gameboard[row][col] == null) {
+                    console.log("equals null")
                     return
                 }
             }
@@ -194,11 +195,24 @@ const Game = (() => {
         playersDiv.style.display = "none"
         const victoryInfo = document.getElementById("victoryInfo")
         victoryInfo.style.display = "flex"
+        const victoryAlert = document.getElementById("victoryAlert")
+        victoryAlert.textContent = `${player.name} won the game!`
+
     }
 
     drawGame = () => {
         console.log("this game is a draw")
-
+        Gameboard.tiles.forEach((row) => {
+            for (let tile = 0; tile < Gameboard.tiles.length; tile++) {
+                row[tile].classList.add("drawTile")
+            }
+        })
+        const playersDiv = document.getElementById("playersDiv")
+        playersDiv.style.display = "none"
+        const victoryAlert = document.getElementById("victoryAlert")
+        victoryAlert.textContent = `Draw!`
+        const victoryInfo = document.getElementById("victoryInfo")
+        victoryInfo.style.display = "flex"
     }
 
     makeMove = (event) => {
@@ -273,10 +287,11 @@ const header = (() => {
             for (let i = 0; i < Gameboard.gameboard.length; i++) {
                 Gameboard.gameboard[i].fill(null)
             }
-            // Unhighlight victory cells
+            // Unhighlight victory cells or "draw" highlight effect
             for (let i = 0; i < Gameboard.gameboard.length; i++) {
                 for (let j = 0; j < Gameboard.gameboard.length; j++) {
                     Gameboard.tiles[i][j].classList.remove("victoryTile")
+                    Gameboard.tiles[i][j].classList.remove("drawTile")
                 }
             }
             // Hide victoryInfo and reveal playerDiv
