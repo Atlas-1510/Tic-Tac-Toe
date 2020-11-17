@@ -14,17 +14,19 @@
         <div id="playersDiv">
             <div class="player">
                 <h2 id="playerOneTitle" class="playerTitle">Player One</h2>
-                <div class="playerButtons">
-                    <button>Human</button>
-                    <button>AI</button>
+                <div class="playerButtons" data-player="playerOne">
+                    <button data-playerType="human">Human</button>
+                    <button data-playerType="machine">AI</button>
                 </div>
+                <div class="scoreCounter">Score: <span class="score" id="scoreOne">0</span></div>
             </div>
             <div class="player">
                 <h2 id="playerTwoTitle" class="playerTitle">Player Two</h2>
-                <div class="playerButtons">
-                    <button>Human</button>
-                    <button>AI</button>
+                <div class="playerButtons" data-player="playerTwo">
+                    <button data-playerType="human">Human</button>
+                    <button data-playerType="machine">AI</button>
                 </div>
+                <div class="scoreCounter">Score: <span class="score" id="scoreTwo">0</span></div>
             </div>
         </div>
         <button id="startButton">Start</button>

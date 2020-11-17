@@ -59,6 +59,10 @@ body {
     margin: var(--margin)
 }
 
+.scoreCounter {
+    display: none;
+}
+
 .activeButton {
     background-color: orange;
 }
