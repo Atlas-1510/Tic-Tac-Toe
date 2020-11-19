@@ -24,7 +24,8 @@ const Players = (() => {
         let playerTurn;
         let score = 0;
         let playerType;
-        return { playerTurn, name, score, playerType }
+        let machineMaximiserType;
+        return { playerTurn, name, score, playerType, machineMaximiserType }
     }
 
     const playerOne = playerFactory("Player One")
@@ -322,6 +323,107 @@ const Game = (() => {
         return _drawGame();
     }
 
+    const checkWinner = (board) => {
+
+        // Checks array to see if all the same, i.e a winning combination
+        const _checkWin = (array) => {
+            let check = array.every((item) => {
+                if (item == array[0] && array[0] != null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+            if (check) {
+                return true;
+            }
+        }
+
+        const victor = (array) => {
+            if (array[0] == true) {
+                return Players.playerOne
+            } else if (array[0] == false) {
+                return Players.playerTwo
+            }
+        }
+
+        let winner = null;
+
+
+        // Analyse gameboard for victory
+        // Check rows for victory
+        for (let i = 0; i < board.length; i++) {
+            let row = board[i];
+            if (_checkWin(row)) {
+                winner = _victor(row)
+                return winner
+            }
+        }
+        // Check columns for victory
+        for (let col = 0; col < 3; col++) {
+            let colArray = [];
+            for (let row = 0; row < board.length; row++) {
+                colArray.push(board[row][col])
+            }
+            if (_checkWin(colArray)) {
+                winner = _victor(colArray)
+                return winner
+            }
+        }
+        // Check diagonals for victory
+        let diagArray = [];
+        for (let index = 0; index < board.length; index++) {
+            diagArray.push(board[index][index]);
+        }
+        if (_checkWin(diagArray)) {
+            winner = _victor(diagArray)
+            return winner
+        }
+        diagArray = [];
+        for (let index = 0; index < board.length; index++) {
+            diagArray.push(board[index][2 - index])
+        }
+        if (_checkWin(diagArray)) {
+            winner = _victor(diagArray)
+            return winner
+        };
+        // Check if draw
+        for (let row = 0; row < board.length; row++) {
+            for (let col = 0; col < board.length; col++) {
+                if (board[row][col] == null) {
+                    return winner
+                }
+            }
+        }
+        return "tie"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
     const inputMove = (event) => {
         let tile = event.target;
         let row = tile.dataset.row
@@ -346,6 +448,18 @@ const Game = (() => {
             token = false;
         }
         ////// MINIMAX ALGORITHM //////
+
+        const getAvailableMoves = (board) => {
+            let availableMoves = []
+            for (let i = 0; i < gameboard.length; i++) {
+                for (let j = 0; j < gameboard.length; j++) {
+                    if (gameboard[i][j] == null) {
+                        availableMoves.push([i, j])
+                    }
+                }
+            }
+            return availableMoves
+        }
 
         const evaluateBoard = (board) => {
             // Analyse gameboard for victory
@@ -401,75 +515,44 @@ const Game = (() => {
             return 0;
         }
 
-        const findBestMove = (board) => {
-            let bestMove = null
-            // get possible moves
-            let possibleMoves = []
-            for (let i = 0; i < gameboard.length; i++) {
-                for (let j = 0; j < gameboard.length; j++) {
-                    if (gameboard[i][j] == null) {
-                        possibleMoves.push([i, j])
+        const minimax = (board, isMaximiser) => {
+
+            let availableMoves = getAvailableMoves(board)
+            let bestScore = (isMaximiser) ? -Infinity : Infinity
+            let bestMove = []
+            for (let k = 0; k < availableMoves.length; k++) {
+                // make the move
+                let i = availableMoves[k][0]
+                let j = availableMoves[k][1]
+                board[i][j] = token
+                // evaluate the move
+                let trialMoveScore = evaluateBoard(board)
+                let winner = checkWinner(board)
+                if (winner !== null) {
+                    return trialMoveScore
+                }
+                if (isMaximiser) {
+                    if (trialMoveScore > bestScore) {
+                        // If the move is the best alternative so far, store it as the best move
+                        bestScore = trialMoveScore
+                        bestMove.length = 0;
+                        bestMove.push(i)
+                        bestMove.push(j)
+                    }
+                } else if (!isMaximiser) {
+                    if (trialMoveScore < bestScore) {
+                        // If the move is the best alternative so far, store it as the best move
+                        bestScore = trialMoveScore
+                        bestMove.length = 0;
+                        bestMove.push(i)
+                        bestMove.push(j)
                     }
                 }
-            }
-            // identify best move
-            for (let k = 0; k < possibleMoves.length; k++) {
-                let trialGameboard = gameboard;
-                let i = possibleMoves[k][0]
-                let j = possibleMoves[k][1]
-                trialGameboard[i][j] = token
-                if (evaluateBoard(trialGameboard) > bestMove) {
-                    bestMove = [i, j]
-                }
-            }
-            return bestMove
-        }
 
-        const isMovesLeft = (board) = () => {
-            // Check if board is completed
-            for (let row = 0; row < board.length; row++) {
-                for (let col = 0; col < board.length; col++) {
-                    if (board[row][col] == null) {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-
-        const minimax = (board, depth, isMaximisingPlayer) => {
-
-
-            if (evaluateBoard(board) == 10 || evaluateBoard(board) == -10) {
-                return evaluateBoard(board)
+                // unmake the move
+                board[i][j] = null
             }
 
-            // get possible moves
-            let possibleMoves = []
-            for (let i = 0; i < gameboard.length; i++) {
-                for (let j = 0; j < gameboard.length; j++) {
-                    if (gameboard[i][j] == null) {
-                        possibleMoves.push([i, j])
-                    }
-                }
-            }
-            // find best move
-            if (isMaximisingPlayer) {
-                let bestVal = -1000
-                for (let k = 0; k < possibleMoves.length; k++) {
-                    let value = minimax(board, depth + 1, false)
-                    bestVal = max(bestVal, value)
-                }
-                return bestVal
-            }
-            else {
-                let bestVal = 1000
-                for (let k = 0; k < possibleMoves.length; k++) {
-                    let value = minimax(board, depth + 1, true)
-                    bestVal = max(bestVal, value)
-                }
-                return bestVal
-            }
         }
 
 
@@ -537,3 +620,132 @@ const Gameplay = (() => {
         Game.makeMove(player)
     })
 })()
+
+
+
+
+// const evaluateBoard = (board) => {
+//     // Analyse gameboard for victory
+//     // Check rows for victory
+//     for (let i = 0; i < gameboard.length; i++) {
+//         let row = gameboard[i];
+//         if (row[i][0] != null && row[i][0] == row[i][1] && row[i][1] == row[i][2]) {
+//             if (row[i][0] == true) {
+//                 return 10
+//             } else {
+//                 return -10
+//             }
+//         }
+//     }
+//     // Check cols for victory
+//     for (let col = 0; col < 3; col++) {
+//         let colArray = [];
+//         for (let row = 0; row < Gameboard.gameboard.length; row++) {
+//             colArray.push(Gameboard.gameboard[row][col])
+//         }
+//         if (colArray[0] != null && colArray[0] == colArray[1] && colArray[1] == colArray[2]) {
+//             if (row[i][0] == true) {
+//                 return 10
+//             } else {
+//                 return -10
+//             }
+//         }
+//     }
+
+//     // Check diagonals for victory
+//     let diagArray = [];
+//     for (let index = 0; index < gameboard.length; index++) {
+//         diagArray.push(gameboard[index][index]);
+//     }
+//     if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
+//         if (row[i][0] == true) {
+//             return 10
+//         } else {
+//             return -10
+//         }
+//     }
+//     diagArray = [];
+//     for (let index = 0; index < gameboard.length; index++) {
+//         diagArray.push(gameboard[index][2 - index])
+//     }
+//     if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
+//         if (row[i][0] == true) {
+//             return 10
+//         } else {
+//             return -10
+//         }
+//     }
+//     return 0;
+// }
+
+// const findBestMove = (board) => {
+//     let bestMove = null
+//     // get possible moves
+//     let possibleMoves = []
+//     for (let i = 0; i < gameboard.length; i++) {
+//         for (let j = 0; j < gameboard.length; j++) {
+//             if (gameboard[i][j] == null) {
+//                 possibleMoves.push([i, j])
+//             }
+//         }
+//     }
+//     // identify best move
+//     for (let k = 0; k < possibleMoves.length; k++) {
+//         let trialGameboard = gameboard;
+//         let i = possibleMoves[k][0]
+//         let j = possibleMoves[k][1]
+//         trialGameboard[i][j] = token
+//         if (evaluateBoard(trialGameboard) > bestMove) {
+//             bestMove = [i, j]
+//         }
+//     }
+//     return bestMove
+// }
+
+// const isMovesLeft = (board) = () => {
+//     // Check if board is completed
+//     for (let row = 0; row < board.length; row++) {
+//         for (let col = 0; col < board.length; col++) {
+//             if (board[row][col] == null) {
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+
+// const minimax = (board, depth, isMaximisingPlayer) => {
+
+
+//     if (evaluateBoard(board) == 10 || evaluateBoard(board) == -10) {
+//         return evaluateBoard(board)
+//     }
+
+//     // get possible moves
+//     let possibleMoves = []
+//     for (let i = 0; i < gameboard.length; i++) {
+//         for (let j = 0; j < gameboard.length; j++) {
+//             if (gameboard[i][j] == null) {
+//                 possibleMoves.push([i, j])
+//             }
+//         }
+//     }
+//     // find best move
+//     if (isMaximisingPlayer) {
+//         let bestVal = -1000
+//         for (let k = 0; k < possibleMoves.length; k++) {
+//             let value = minimax(board, depth + 1, false)
+//             bestVal = max(bestVal, value)
+//         }
+//         return bestVal
+//     }
+//     else {
+//         let bestVal = 1000
+//         for (let k = 0; k < possibleMoves.length; k++) {
+//             let value = minimax(board, depth + 1, true)
+//             bestVal = max(bestVal, value)
+//         }
+//         return bestVal
+//     }
+// }
+
