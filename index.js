@@ -24,8 +24,7 @@ const Players = (() => {
         let playerTurn;
         let score = 0;
         let playerType;
-        let machineMaximiserType;
-        return { playerTurn, name, score, playerType, machineMaximiserType }
+        return { playerTurn, name, score, playerType }
     }
 
     const playerOne = playerFactory("Player One")
@@ -174,114 +173,110 @@ const Game = (() => {
         Gameboard.render();
     }
 
+    const _endGame = (player, victoryType, index) => {
 
-
-    const checkVictory = (player) => {
-
-        // draw meaning a non-win outcome, not "draw" as in render an image
-        const _drawGame = () => {
-            console.log("this game is a draw")
-            Gameboard.tiles.forEach((row) => {
-                for (let tile = 0; tile < Gameboard.tiles.length; tile++) {
-                    row[tile].classList.add("drawTile")
-                }
-            })
-            // const playersDiv = document.getElementById("playersDiv")
-            // Domain.playersDiv.style.display = "none"
-            // const victoryAlert = document.getElementById("victoryAlert")
-            Domain.victoryAlert.textContent = `Draw!`
-            // const victoryInfo = document.getElementById("victoryInfo")
-            Domain.victoryInfo.style.display = "flex"
-
-            // Play again button
-            Domain.playAgain.addEventListener("click", _rematch)
-
-            return "draw"
+        const _highlightTiles = (tiles) => {
+            for (let tile = 0; tile < tiles.length; tile++) {
+                tiles[tile].classList.add("victoryTile")
+            }
         }
 
-        const _endGame = (player, victoryType, index) => {
-
-            const _highlightTiles = (tiles) => {
-                for (let tile = 0; tile < tiles.length; tile++) {
-                    tiles[tile].classList.add("victoryTile")
+        const _removeListeners = () => {
+            for (let row = 0; row < Gameboard.tiles.length; row++) {
+                for (let col = 0; col < Gameboard.tiles.length; col++) {
+                    Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
                 }
             }
-
-            const _removeListeners = () => {
-                for (let row = 0; row < Gameboard.tiles.length; row++) {
-                    for (let col = 0; col < Gameboard.tiles.length; col++) {
-                        Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
-                    }
-                }
-            }
-
-            const _updateScores = (player) => {
-                console.log("UPDATE SCORES")
-                player.score += 1;
-                Domain.scoreOne.textContent = ` ${Players.playerOne.score}`;
-                Domain.scoreTwo.textContent = ` ${Players.playerTwo.score}`;
-            }
-
-            let victoryTiles = [];
-            // Row victory
-            if (victoryType == "row") {
-                victoryTiles = Gameboard.tiles[index];
-            }
-            // Column victory
-            else if (victoryType == "column") {
-                for (let row = 0; row < Gameboard.gameboard.length; row++) {
-                    victoryTiles.push(Gameboard.tiles[row][index])
-                }
-            }
-            // Diagonal victory (top left - bottom right)
-            else if (victoryType == "diagonal") {
-                for (let index = 0; index < Gameboard.gameboard.length; index++) {
-                    victoryTiles.push(Gameboard.tiles[index][index])
-                }
-            }
-            // Diagonal victory (top right - bottom left)
-            else if (victoryType == "reverseDiagonal") {
-                for (let index = 0; index < Gameboard.gameboard.length; index++) {
-                    victoryTiles.push(Gameboard.tiles[index][2 - index])
-                }
-            }
-            _highlightTiles(victoryTiles)
-            _removeListeners()
-            _updateScores(player)
-
-
-            // const playersDiv = document.getElementById("playersDiv")
-            // Domain.playersDiv.style.display = "none"
-            // const victoryInfo = document.getElementById("victoryInfo")
-            Domain.victoryInfo.style.display = "flex"
-            // const victoryAlert = document.getElementById("victoryAlert")
-            Domain.victoryAlert.textContent = `${player.name} won the game!`
-
-            // Play again button
-            Domain.playAgain.addEventListener("click", _rematch)
         }
+
+        const _updateScores = (player) => {
+            console.log("UPDATE SCORES")
+            player.score += 1;
+            Domain.scoreOne.textContent = ` ${Players.playerOne.score}`;
+            Domain.scoreTwo.textContent = ` ${Players.playerTwo.score}`;
+        }
+
+        let victoryTiles = [];
+        // Row victory
+        if (victoryType == "row") {
+            victoryTiles = Gameboard.tiles[index];
+        }
+        // Column victory
+        else if (victoryType == "column") {
+            for (let row = 0; row < Gameboard.gameboard.length; row++) {
+                victoryTiles.push(Gameboard.tiles[row][index])
+            }
+        }
+        // Diagonal victory (top left - bottom right)
+        else if (victoryType == "diagonal") {
+            for (let index = 0; index < Gameboard.gameboard.length; index++) {
+                victoryTiles.push(Gameboard.tiles[index][index])
+            }
+        }
+        // Diagonal victory (top right - bottom left)
+        else if (victoryType == "reverseDiagonal") {
+            for (let index = 0; index < Gameboard.gameboard.length; index++) {
+                victoryTiles.push(Gameboard.tiles[index][2 - index])
+            }
+        }
+        _highlightTiles(victoryTiles)
+        _removeListeners()
+        _updateScores(player)
+
+        Domain.victoryInfo.style.display = "flex"
+        Domain.victoryAlert.textContent = `${player.name} won the game!`
+
+        // Play again button
+        Domain.playAgain.addEventListener("click", _rematch)
+    }
+
+    // draw meaning a non-win outcome, not "draw" as in render an image
+    const _drawGame = () => {
+        console.log("this game is a draw")
+        Gameboard.tiles.forEach((row) => {
+            for (let tile = 0; tile < Gameboard.tiles.length; tile++) {
+                row[tile].classList.add("drawTile")
+            }
+        })
+        // const playersDiv = document.getElementById("playersDiv")
+        // Domain.playersDiv.style.display = "none"
+        // const victoryAlert = document.getElementById("victoryAlert")
+        Domain.victoryAlert.textContent = `Draw!`
+        // const victoryInfo = document.getElementById("victoryInfo")
+        Domain.victoryInfo.style.display = "flex"
+
+        // Play again button
+        Domain.playAgain.addEventListener("click", _rematch)
+
+        return "draw"
+    }
+
+    // Returns victor and victory type (row/col/diag)
+    const checkVictory = () => {
 
         // Checks array to see if all the same, i.e a winning combination
-        const _checkWin = (array, player) => {
-            let check = array.every((item) => {
-                if (item == array[0] && array[0] != null) {
-                    return true;
-                } else {
-                    return false;
-                }
-            })
-            if (check) {
-                console.log(`${player.name} won the game!`)
-                return true;
+        const _checkWin = (array) => {
+            if (array[0] == array[1] && array[1] == array[2] && array[0] != null) {
+                return true
+            } else {
+                return false
             }
         }
+
+        const _getWinner = (array) => {
+            if (array[0] == true) {
+                return Players.playerOne
+            } else if (array[0] == false) {
+                return Players.playerTwo
+            }
+        }
+
         // Analyse gameboard for victory
         // Check rows for victory
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             let row = Gameboard.gameboard[i];
-            if (_checkWin(row, player)) {
-                _endGame(player, "row", i)
-                return true
+            if (_checkWin(row)) {
+                return [_getWinner(row), "row"]
             }
         }
         // Check columns for victory
@@ -290,9 +285,8 @@ const Game = (() => {
             for (let row = 0; row < Gameboard.gameboard.length; row++) {
                 colArray.push(Gameboard.gameboard[row][col])
             }
-            if (_checkWin(colArray, player)) {
-                _endGame(player, "column", col);
-                return true
+            if (_checkWin(colArray)) {
+                return [_getWinner(colArray), "column"]
             }
         }
         // Check diagonals for victory
@@ -300,128 +294,25 @@ const Game = (() => {
         for (let index = 0; index < Gameboard.gameboard.length; index++) {
             diagArray.push(Gameboard.gameboard[index][index]);
         }
-        if (_checkWin(diagArray, player)) {
-            _endGame(player, "diagonal")
-            return true
+        if (_checkWin(diagArray)) {
+            return [_getWinner(diagArray), "diagonal"]
         }
         diagArray = [];
         for (let index = 0; index < Gameboard.gameboard.length; index++) {
             diagArray.push(Gameboard.gameboard[index][2 - index])
         }
-        if (_checkWin(diagArray, player)) {
-            _endGame(player, "reverseDiagonal")
-            return true
-        };
+        if (_checkWin(diagArray)) {
+            return [_getWinner(diagArray), "reverseDiagonal"]
+        }
         // Check if draw
         for (let row = 0; row < Gameboard.gameboard.length; row++) {
             for (let col = 0; col < Gameboard.gameboard.length; col++) {
                 if (Gameboard.gameboard[row][col] == null) {
-                    return
+                    return [null, null]
                 }
             }
         }
-        return _drawGame();
-    }
-
-    const checkWinner = (board) => {
-
-        // Checks array to see if all the same, i.e a winning combination
-        const _checkWin = (array) => {
-            let check = array.every((item) => {
-                if (item == array[0] && array[0] != null) {
-                    return true;
-                } else {
-                    return false;
-                }
-            })
-            if (check) {
-                return true;
-            }
-        }
-
-        const victor = (array) => {
-            if (array[0] == true) {
-                return Players.playerOne
-            } else if (array[0] == false) {
-                return Players.playerTwo
-            }
-        }
-
-        let winner = null;
-
-
-        // Analyse gameboard for victory
-        // Check rows for victory
-        for (let i = 0; i < board.length; i++) {
-            let row = board[i];
-            if (_checkWin(row)) {
-                winner = _victor(row)
-                return winner
-            }
-        }
-        // Check columns for victory
-        for (let col = 0; col < 3; col++) {
-            let colArray = [];
-            for (let row = 0; row < board.length; row++) {
-                colArray.push(board[row][col])
-            }
-            if (_checkWin(colArray)) {
-                winner = _victor(colArray)
-                return winner
-            }
-        }
-        // Check diagonals for victory
-        let diagArray = [];
-        for (let index = 0; index < board.length; index++) {
-            diagArray.push(board[index][index]);
-        }
-        if (_checkWin(diagArray)) {
-            winner = _victor(diagArray)
-            return winner
-        }
-        diagArray = [];
-        for (let index = 0; index < board.length; index++) {
-            diagArray.push(board[index][2 - index])
-        }
-        if (_checkWin(diagArray)) {
-            winner = _victor(diagArray)
-            return winner
-        };
-        // Check if draw
-        for (let row = 0; row < board.length; row++) {
-            for (let col = 0; col < board.length; col++) {
-                if (board[row][col] == null) {
-                    return winner
-                }
-            }
-        }
-        return "tie"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return ["tie", null]
     }
 
     const inputMove = (event) => {
@@ -431,7 +322,15 @@ const Game = (() => {
         let player = Game.getActivePlayer();
         Gameboard.gameboard[row][col] = (player == Players.playerOne) ? true : false;
         Gameboard.render();
-        checkVictory(player);
+        let victory = checkVictory();
+        let victor = victory[0]
+        let victoryType = victory[1]
+        if (victor == Players.playerOne || victor == Players.playerTwo) {
+            _endGame(victor, victoryType)
+        }
+        if (victory[0] == "tie") {
+            _drawGame()
+        }
         toggleActivePlayer();
         _highlightActivePlayer();
         tile.removeEventListener("click", Game.inputMove)
@@ -442,127 +341,160 @@ const Game = (() => {
     const makeMachineMove = (player) => {
         let gameboard = Gameboard.gameboard
         let token;
+        let isMaximisingPlayer
         if (player == Players.playerOne) {
             token = true;
+            isMaximisingPlayer = true
         } else {
             token = false;
+            isMaximisingPlayer = false
         }
-        ////// MINIMAX ALGORITHM //////
 
-        const getAvailableMoves = (board) => {
-            let availableMoves = []
-            for (let i = 0; i < gameboard.length; i++) {
-                for (let j = 0; j < gameboard.length; j++) {
-                    if (gameboard[i][j] == null) {
-                        availableMoves.push([i, j])
+
+        // start with loop over available moves first, and then recursive loop after
+
+        ////// MINIMAX ALGORITHM //////
+        const minimax = (board, isMaximisingPlayer) => {
+
+            const evaluateBoard = (board) => {
+                // Analyse gameboard for victory
+                // Check rows for victory
+                for (let i = 0; i < board.length; i++) {
+                    let row = board[i];
+                    if (row[0] != null && row[0] == row[1] && row[1] == row[2]) {
+                        if (row[0] == true) {
+                            return 10
+                        } else {
+                            return -10
+                        }
                     }
                 }
-            }
-            return availableMoves
-        }
+                // Check cols for victory
+                for (let col = 0; col < 3; col++) {
+                    let colArray = [];
+                    for (let row = 0; row < board.length; row++) {
+                        colArray.push(board[row][col])
+                    }
+                    if (colArray[0] != null && colArray[0] == colArray[1] && colArray[1] == colArray[2]) {
+                        if (colArray[0] == true) {
+                            return 10
+                        } else {
+                            return -10
+                        }
+                    }
+                }
 
-        const evaluateBoard = (board) => {
-            // Analyse gameboard for victory
-            // Check rows for victory
-            for (let i = 0; i < gameboard.length; i++) {
-                let row = gameboard[i];
-                if (row[i][0] != null && row[i][0] == row[i][1] && row[i][1] == row[i][2]) {
-                    if (row[i][0] == true) {
+                // Check diagonals for victory
+                let diagArray = [];
+                for (let index = 0; index < board.length; index++) {
+                    diagArray.push(board[index][index]);
+                }
+                if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
+                    if (diagArray[0] == true) {
                         return 10
                     } else {
                         return -10
                     }
                 }
-            }
-            // Check cols for victory
-            for (let col = 0; col < 3; col++) {
-                let colArray = [];
-                for (let row = 0; row < Gameboard.gameboard.length; row++) {
-                    colArray.push(Gameboard.gameboard[row][col])
+                diagArray = [];
+                for (let index = 0; index < board.length; index++) {
+                    diagArray.push(board[index][2 - index])
                 }
-                if (colArray[0] != null && colArray[0] == colArray[1] && colArray[1] == colArray[2]) {
-                    if (row[i][0] == true) {
+                if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
+                    if (diagArray[0] == true) {
                         return 10
                     } else {
                         return -10
                     }
                 }
+                return 0;
             }
 
-            // Check diagonals for victory
-            let diagArray = [];
-            for (let index = 0; index < gameboard.length; index++) {
-                diagArray.push(gameboard[index][index]);
-            }
-            if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
-                if (row[i][0] == true) {
-                    return 10
-                } else {
-                    return -10
-                }
-            }
-            diagArray = [];
-            for (let index = 0; index < gameboard.length; index++) {
-                diagArray.push(gameboard[index][2 - index])
-            }
-            if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
-                if (row[i][0] == true) {
-                    return 10
-                } else {
-                    return -10
-                }
-            }
-            return 0;
-        }
+            let bestScore = (isMaximisingPlayer) ? -Infinity : Infinity
+            let token = isMaximisingPlayer
 
-        const minimax = (board, isMaximiser) => {
+            // If there are no available moves, it is a terminal state (end of branch)
+            // just evaluate the state of the board and return the score
+            // No need to return the move itself... that is already stored in {i, j} of parent minimax call
+            let victoryCheck = checkVictory(board)
+            if (victoryCheck[0] == Players.playerOne || victoryCheck[0] == Players.playerTwo || victoryCheck[0] == "tie") {
+                // console.log(`victory board evaluaton: ${evaluateBoard(board)}`)
+                return evaluateBoard(board)
+            }
 
-            let availableMoves = getAvailableMoves(board)
-            let bestScore = (isMaximiser) ? -Infinity : Infinity
-            let bestMove = []
-            for (let k = 0; k < availableMoves.length; k++) {
-                // make the move
-                let i = availableMoves[k][0]
-                let j = availableMoves[k][1]
-                board[i][j] = token
-                // evaluate the move
-                let trialMoveScore = evaluateBoard(board)
-                let winner = checkWinner(board)
-                if (winner !== null) {
-                    return trialMoveScore
-                }
-                if (isMaximiser) {
-                    if (trialMoveScore > bestScore) {
-                        // If the move is the best alternative so far, store it as the best move
-                        bestScore = trialMoveScore
-                        bestMove.length = 0;
-                        bestMove.push(i)
-                        bestMove.push(j)
-                    }
-                } else if (!isMaximiser) {
-                    if (trialMoveScore < bestScore) {
-                        // If the move is the best alternative so far, store it as the best move
-                        bestScore = trialMoveScore
-                        bestMove.length = 0;
-                        bestMove.push(i)
-                        bestMove.push(j)
+            // Assuming there are available moves, iterate over each possible move
+            for (let i = 0; i < board.length; i++) {
+                for (let j = 0; j < board.length; j++) {
+                    // For each gameboard tile
+                    if (board[i][j] == null) {
+                        // If the tile is empty, make the move
+                        board[i][j] = token
+                        // Evaluate the score of this move
+                        let score = minimax(board, !isMaximisingPlayer)
+                        // If this is the best move found, remember the **SCORE**, not the move!
+                        // The i, j move data is contained in the parent invocation of minimax, just need to return the score
+                        // to decide whether to retain that i,j information or not
+                        if (isMaximisingPlayer) {
+                            if (score > bestScore) {
+                                bestScore = score
+                            }
+                        } else if (!isMaximisingPlayer) {
+                            if (score < bestScore) {
+                                bestScore = score
+                            }
+                        }
+                        // Unmake the move
+                        board[i][j] = null
                     }
                 }
-
-                // unmake the move
-                board[i][j] = null
             }
-
+            return bestScore
         }
-
-
-
         ////// MINIMAX ALGORITHM //////
+
+        let bestMove;
+        let bestScore = (isMaximisingPlayer) ? -Infinity : Infinity
+
+        for (let i = 0; i < gameboard.length; i++) {
+            for (let j = 0; j < gameboard.length; j++) {
+                // For each empty gameboard tile
+                if (gameboard[i][j] == null) {
+                    // If the tile is empty, make the move
+                    gameboard[i][j] = token
+                    // Evaluate the score of this move
+                    let score = minimax(gameboard, !isMaximisingPlayer)
+                    // If this is the best move found, remember the move
+                    if (isMaximisingPlayer) {
+                        if (score > bestScore) {
+                            bestMove = { i, j }
+                            bestScore = score
+                        }
+                    } else if (!isMaximisingPlayer) {
+                        if (score < bestScore) {
+                            bestMove = { i, j }
+                            bestScore = score
+                        }
+                    }
+                    // Unmake the move
+                    gameboard[i][j] = null
+                }
+            }
+        }
+
+        // ******************************************
+        // Actually implement the AI move here...
+        let move = bestMove
+        console.log(move)
+        Gameboard.gameboard[move.i][move.j] = token
+        Gameboard.render();
+
+        // ******************************************
     }
 
 
 
     const makeMove = (player) => {
+        _highlightActivePlayer()
         console.log(`Player name: ${player.name}`)
         console.log(`Player type: ${player.playerType}`)
         if (player.playerType == "human") {
@@ -572,9 +504,9 @@ const Game = (() => {
         else if (player.playerType == "machine") {
             return setTimeout(function () {
                 makeMachineMove(player)
-                Gameboard.render();
-                if (checkVictory(player)) {
-                    return "victory"
+                let victorCheck = checkVictory()
+                if (victorCheck[0] == Players.playerOne || victorCheck[0] == Players.playerTwo) {
+                    console.log("VICTORY")
                 } else {
                     toggleActivePlayer()
                     let player = getActivePlayer();
@@ -593,7 +525,6 @@ const Game = (() => {
             }
         })
     }
-    addListeners();
 
     return { getActivePlayer, toggleActivePlayer, inputMove, addListeners, makeMove }
 })()
@@ -612,6 +543,16 @@ const Gameplay = (() => {
             return;
         }
 
+        // Only add the listeners if one of the players is a human
+        console.log("check reached")
+        if (Players.playerOne.playerType == "human" || Players.playerTwo.playerType == "human") {
+            console.log("human found")
+            Game.addListeners();
+        }
+
+
+
+
         Header.clearHeader();
 
 
@@ -620,132 +561,3 @@ const Gameplay = (() => {
         Game.makeMove(player)
     })
 })()
-
-
-
-
-// const evaluateBoard = (board) => {
-//     // Analyse gameboard for victory
-//     // Check rows for victory
-//     for (let i = 0; i < gameboard.length; i++) {
-//         let row = gameboard[i];
-//         if (row[i][0] != null && row[i][0] == row[i][1] && row[i][1] == row[i][2]) {
-//             if (row[i][0] == true) {
-//                 return 10
-//             } else {
-//                 return -10
-//             }
-//         }
-//     }
-//     // Check cols for victory
-//     for (let col = 0; col < 3; col++) {
-//         let colArray = [];
-//         for (let row = 0; row < Gameboard.gameboard.length; row++) {
-//             colArray.push(Gameboard.gameboard[row][col])
-//         }
-//         if (colArray[0] != null && colArray[0] == colArray[1] && colArray[1] == colArray[2]) {
-//             if (row[i][0] == true) {
-//                 return 10
-//             } else {
-//                 return -10
-//             }
-//         }
-//     }
-
-//     // Check diagonals for victory
-//     let diagArray = [];
-//     for (let index = 0; index < gameboard.length; index++) {
-//         diagArray.push(gameboard[index][index]);
-//     }
-//     if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
-//         if (row[i][0] == true) {
-//             return 10
-//         } else {
-//             return -10
-//         }
-//     }
-//     diagArray = [];
-//     for (let index = 0; index < gameboard.length; index++) {
-//         diagArray.push(gameboard[index][2 - index])
-//     }
-//     if (diagArray[0] != null && diagArray[0] == diagArray[1] && diagArray[1] == diagArray[2]) {
-//         if (row[i][0] == true) {
-//             return 10
-//         } else {
-//             return -10
-//         }
-//     }
-//     return 0;
-// }
-
-// const findBestMove = (board) => {
-//     let bestMove = null
-//     // get possible moves
-//     let possibleMoves = []
-//     for (let i = 0; i < gameboard.length; i++) {
-//         for (let j = 0; j < gameboard.length; j++) {
-//             if (gameboard[i][j] == null) {
-//                 possibleMoves.push([i, j])
-//             }
-//         }
-//     }
-//     // identify best move
-//     for (let k = 0; k < possibleMoves.length; k++) {
-//         let trialGameboard = gameboard;
-//         let i = possibleMoves[k][0]
-//         let j = possibleMoves[k][1]
-//         trialGameboard[i][j] = token
-//         if (evaluateBoard(trialGameboard) > bestMove) {
-//             bestMove = [i, j]
-//         }
-//     }
-//     return bestMove
-// }
-
-// const isMovesLeft = (board) = () => {
-//     // Check if board is completed
-//     for (let row = 0; row < board.length; row++) {
-//         for (let col = 0; col < board.length; col++) {
-//             if (board[row][col] == null) {
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-
-// const minimax = (board, depth, isMaximisingPlayer) => {
-
-
-//     if (evaluateBoard(board) == 10 || evaluateBoard(board) == -10) {
-//         return evaluateBoard(board)
-//     }
-
-//     // get possible moves
-//     let possibleMoves = []
-//     for (let i = 0; i < gameboard.length; i++) {
-//         for (let j = 0; j < gameboard.length; j++) {
-//             if (gameboard[i][j] == null) {
-//                 possibleMoves.push([i, j])
-//             }
-//         }
-//     }
-//     // find best move
-//     if (isMaximisingPlayer) {
-//         let bestVal = -1000
-//         for (let k = 0; k < possibleMoves.length; k++) {
-//             let value = minimax(board, depth + 1, false)
-//             bestVal = max(bestVal, value)
-//         }
-//         return bestVal
-//     }
-//     else {
-//         let bestVal = 1000
-//         for (let k = 0; k < possibleMoves.length; k++) {
-//             let value = minimax(board, depth + 1, true)
-//             bestVal = max(bestVal, value)
-//         }
-//         return bestVal
-//     }
-// }
-
