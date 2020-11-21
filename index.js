@@ -21,9 +21,9 @@ const Domain = (() => {
 
 const Players = (() => {
     const playerFactory = (name) => {
-        let playerTurn;
-        let score = 0;
-        let playerType;
+        let playerTurn; // Boolean to keep track of which player's turn it is
+        let score = 0; // Variable to keep track of how many victories the player has had (score is lost when page refreshed)
+        let playerType; // "human" or "machine"
         return { playerTurn, name, score, playerType }
     }
 
@@ -35,7 +35,9 @@ const Players = (() => {
 
 const Header = (() => {
 
-    const _toggleButton = (event) => {
+    // Functionality for human/AI buttons in header before game starts
+
+    const _toggleButtonHumanOrAI = (event) => {
         let target = event.path[0]
         let parent = event.path[1]
         let siblings = [];
@@ -62,7 +64,7 @@ const Header = (() => {
     Domain.playerButtons.forEach((player) => {
         let buttons = player.querySelectorAll("button")
         buttons.forEach((button) => {
-            button.addEventListener("click", _toggleButton)
+            button.addEventListener("click", _toggleButtonHumanOrAI)
         })
     })
 
@@ -77,6 +79,8 @@ const Header = (() => {
             div.style.display = "inline-block"
         })
     }
+
+
 
     return { clearHeader }
 
