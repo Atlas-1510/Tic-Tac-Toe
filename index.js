@@ -33,8 +33,6 @@ const Players = (() => {
     return { playerOne, playerTwo }
 })()
 
-
-
 const Gameboard = (() => {
 
     // 2D array to hold state of gameboard
@@ -63,8 +61,10 @@ const Gameboard = (() => {
             for (let col = 0; col < gameboard.length; col++) {
                 if (gameboard[row][col] == true) {
                     tiles[row][col].textContent = "X"
+                    tiles[row][col].removeEventListener("click", Game.inputMove)
                 } else if (gameboard[row][col] == false) {
                     tiles[row][col].textContent = "O"
+                    tiles[row][col].removeEventListener("click", Game.inputMove)
                 } else {
                     tiles[row][col].textContent = " "
                 }
@@ -136,24 +136,25 @@ const Game = (() => {
     }
 
     const waitForHumanMove = () => {
-        Gameboard.tiles.forEach((row) => {
-            for (let col = 0; col < row.length; col++) {
-                let tile = row[col]
-                tile.addEventListener("click", inputMove);
+        for (let i = 0; i < Gameboard.gameboard.length; i++) {
+            for (let j = 0; j < Gameboard.gameboard.length; j++) {
+                if (Gameboard.gameboard[i][j] == null) {
+                    Gameboard.tiles[i][j].addEventListener("click", inputMove);
+                }
             }
-        })
+        }
     }
 
     const stopWaitingForHumanMove = () => {
         for (let row = 0; row < Gameboard.tiles.length; row++) {
             for (let col = 0; col < Gameboard.tiles.length; col++) {
-                Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
+                Gameboard.tiles[row][col].removeEventListener("click", inputMove)
             }
         }
     }
 
-    const _endGame = (player, victoryType, index) => {
-
+    const _endGame = (victory) => {
+        // player, victoryType, index
         const _highlightTiles = (tiles) => {
             for (let tile = 0; tile < tiles.length; tile++) {
                 tiles[tile].classList.add("victoryTile")
@@ -168,33 +169,33 @@ const Game = (() => {
 
         let victoryTiles = [];
         // Row victory
-        if (victoryType == "row") {
-            victoryTiles = Gameboard.tiles[index];
+        if (victory.type == "row") {
+            victoryTiles = Gameboard.tiles[victory.location];
         }
         // Column victory
-        else if (victoryType == "column") {
+        else if (victory.type == "column") {
             for (let row = 0; row < Gameboard.gameboard.length; row++) {
-                victoryTiles.push(Gameboard.tiles[row][index])
+                victoryTiles.push(Gameboard.tiles[row][victory.location])
             }
         }
         // Diagonal victory (top left - bottom right)
-        else if (victoryType == "diagonal") {
+        else if (victory.type == "diagonal") {
             for (let index = 0; index < Gameboard.gameboard.length; index++) {
                 victoryTiles.push(Gameboard.tiles[index][index])
             }
         }
         // Diagonal victory (top right - bottom left)
-        else if (victoryType == "reverseDiagonal") {
+        else if (victory.type == "reverseDiagonal") {
             for (let index = 0; index < Gameboard.gameboard.length; index++) {
                 victoryTiles.push(Gameboard.tiles[index][2 - index])
             }
         }
         _highlightTiles(victoryTiles)
         stopWaitingForHumanMove()
-        _updateScores(player)
+        _updateScores(victory.winner)
 
         Domain.victoryInfo.style.display = "flex"
-        Domain.victoryAlert.textContent = `${player.name} won the game!`
+        Domain.victoryAlert.textContent = `${victory.winner.name} won the game!`
 
         // Play again button
         Domain.playAgain.addEventListener("click", _rematch)
@@ -207,20 +208,13 @@ const Game = (() => {
                 row[tile].classList.add("drawTile")
             }
         })
-        // const playersDiv = document.getElementById("playersDiv")
-        // Domain.playersDiv.style.display = "none"
-        // const victoryAlert = document.getElementById("victoryAlert")
         Domain.victoryAlert.textContent = `Draw!`
-        // const victoryInfo = document.getElementById("victoryInfo")
         Domain.victoryInfo.style.display = "flex"
-
-        // Play again button
         Domain.playAgain.addEventListener("click", _rematch)
-
         return "draw"
     }
 
-    // Returns victor and victory type (row/col/diag)
+    // Returns victory object {winner, row/col/diag/reverseDiag, and col/row index}
     const checkVictory = () => {
 
         // Checks array to see if all the same, i.e a winning combination
@@ -240,12 +234,18 @@ const Game = (() => {
             }
         }
 
+        let victoryCondition = {}
+
         // Analyse gameboard for victory
         // Check rows for victory
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             let row = Gameboard.gameboard[i];
             if (_checkWin(row)) {
-                return [_getWinner(row), "row", i]
+                // return [_getWinner(row), "row", i]
+                victoryCondition.winner = _getWinner(row)
+                victoryCondition.type = "row"
+                victoryCondition.location = i
+                return victoryCondition
             }
         }
         // Check columns for victory
@@ -255,7 +255,11 @@ const Game = (() => {
                 colArray.push(Gameboard.gameboard[row][col])
             }
             if (_checkWin(colArray)) {
-                return [_getWinner(colArray), "column", col]
+                // return [_getWinner(colArray), "column", col]
+                victoryCondition.winner = _getWinner(colArray)
+                victoryCondition.type = "column"
+                victoryCondition.location = col
+                return victoryCondition
             }
         }
         // Check diagonals for victory
@@ -264,14 +268,22 @@ const Game = (() => {
             diagArray.push(Gameboard.gameboard[index][index]);
         }
         if (_checkWin(diagArray)) {
-            return [_getWinner(diagArray), "diagonal", null]
+            // return [_getWinner(diagArray), "diagonal", null]
+            victoryCondition.winner = _getWinner(diagArray)
+            victoryCondition.type = "diagonal"
+            victoryCondition.location = null
+            return victoryCondition
         }
         diagArray = [];
         for (let index = 0; index < Gameboard.gameboard.length; index++) {
             diagArray.push(Gameboard.gameboard[index][2 - index])
         }
         if (_checkWin(diagArray)) {
-            return [_getWinner(diagArray), "reverseDiagonal", null]
+            // return [_getWinner(diagArray), "reverseDiagonal", null]
+            victoryCondition.winner = _getWinner(diagArray)
+            victoryCondition.type = "reverseDiagonal"
+            victoryCondition.location = null
+            return victoryCondition
         }
         // Check if draw
         for (let row = 0; row < Gameboard.gameboard.length; row++) {
@@ -281,7 +293,11 @@ const Game = (() => {
                 }
             }
         }
-        return ["tie", null]
+        // return ["tie", null]
+        victoryCondition.winner = "tie"
+        victoryCondition.type = null
+        victoryCondition.location = null
+        return victoryCondition
     }
 
     const inputMove = (event) => {
@@ -291,26 +307,22 @@ const Game = (() => {
         let player = Game.getActivePlayer();
         Gameboard.gameboard[row][col] = (player == Players.playerOne) ? true : false;
         Gameboard.render();
-        let victory = checkVictory();
-        let victor = victory[0]
-        let victoryType = victory[1]
-        let index = victory[2]
-        if (victor == Players.playerOne || victor == Players.playerTwo) {
-            _endGame(victor, victoryType, index)
-        }
-        if (victory[0] == "tie") {
+        let victory = checkVictory()
+        if (victory.winner == Players.playerOne || victory.winner == Players.playerTwo) {
+            _endGame(victory)
+        } else if (victory.winner == "tie") {
             _drawGame()
+        } else {
+            toggleActivePlayer();
+            _highlightActivePlayer();
+            player = Game.getActivePlayer();
+            makeMove(player)
         }
-        toggleActivePlayer();
-        _highlightActivePlayer();
-        tile.removeEventListener("click", Game.inputMove)
-        player = Game.getActivePlayer();
-        makeMove(player)
     }
 
     const makeMachineMove = (player) => {
         let gameboard = Gameboard.gameboard
-        let token;
+        let token; // true if player one, false if player two. to be stored in gameboard object
         let isMaximisingPlayer
         if (player == Players.playerOne) {
             token = true;
@@ -320,8 +332,6 @@ const Game = (() => {
             isMaximisingPlayer = false
         }
 
-
-        // start with loop over available moves first, and then recursive loop after
 
         ////// MINIMAX ALGORITHM //////
         const minimax = (board, isMaximisingPlayer) => {
@@ -387,7 +397,7 @@ const Game = (() => {
             // just evaluate the state of the board and return the score
             // No need to return the move itself... that is already stored in {i, j} of parent minimax call
             let victoryCheck = checkVictory(board)
-            if (victoryCheck[0] == Players.playerOne || victoryCheck[0] == Players.playerTwo || victoryCheck[0] == "tie") {
+            if (victoryCheck.winner == Players.playerOne || victoryCheck.winner == Players.playerTwo || victoryCheck.winner == "tie") {
                 return evaluateBoard(board)
             }
 
@@ -421,6 +431,8 @@ const Game = (() => {
         }
         ////// MINIMAX ALGORITHM //////
 
+
+        // start with loop over available moves first, and then recursive loop after (the minimax function)
         let bestMove;
         let bestScore = (isMaximisingPlayer) ? -Infinity : Infinity
 
@@ -450,24 +462,19 @@ const Game = (() => {
             }
         }
 
-        // ******************************************
-        // Actually implement the AI move here...
         let move = bestMove
         // If the board is complete, no moves left to make so just return
         if (move == undefined) {
             Gameboard.render();
             return
         } else {
-            console.log(move)
             Gameboard.gameboard[move.i][move.j] = token
             Gameboard.render();
         }
-        // ******************************************
     }
 
     const makeMove = (player) => {
         _highlightActivePlayer()
-        console.log(`Player name: ${player.name}`)
         if (player.playerType == "human") {
             waitForHumanMove();
             return "continuePlay"
@@ -477,11 +484,11 @@ const Game = (() => {
             return setTimeout(function () {
                 makeMachineMove(player)
                 let victorCheck = checkVictory()
-                if (victorCheck[0] == Players.playerOne || victorCheck[0] == Players.playerTwo) {
+                if (victorCheck.winner == Players.playerOne || victorCheck.winner == Players.playerTwo) {
                     console.log("VICTORY")
-                    _endGame(victorCheck[0], victorCheck[1], victorCheck[2])
+                    _endGame(victorCheck)
                     toggleActivePlayer();
-                } else if (victorCheck[0] == "tie") {
+                } else if (victorCheck.winner == "tie") {
                     console.log("DRAW")
                     _drawGame();
                 } else {
@@ -497,9 +504,7 @@ const Game = (() => {
     return { getActivePlayer, toggleActivePlayer, inputMove, waitForHumanMove, makeMove }
 })()
 
-Gameboard.render();
-
-const Gameplay = (() => {
+const StartScreen = (() => {
 
     // Functionality for human/AI buttons in header before game starts
 
@@ -556,3 +561,5 @@ const Gameplay = (() => {
         Game.makeMove(player)
     })
 })()
+
+Gameboard.render();
