@@ -168,9 +168,33 @@ const Game = (() => {
         // Hide victoryInfo and reveal playerDiv
         Domain.playersDiv.style.display = "flex"
         Domain.victoryInfo.style.display = "none"
-        Game.addListeners();
-        // Update gameboard
+
+        // Show cleared gameboard
         Gameboard.render();
+
+        let player = getActivePlayer()
+        if (player.playerType == "human") {
+            Game.addListeners();
+        } else {
+            makeMove(player)
+        }
+    }
+
+    const addListeners = () => {
+        Gameboard.tiles.forEach((row) => {
+            for (let col = 0; col < row.length; col++) {
+                let tile = row[col]
+                tile.addEventListener("click", inputMove);
+            }
+        })
+    }
+
+    const removeListeners = () => {
+        for (let row = 0; row < Gameboard.tiles.length; row++) {
+            for (let col = 0; col < Gameboard.tiles.length; col++) {
+                Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
+            }
+        }
     }
 
     const _endGame = (player, victoryType, index) => {
@@ -181,16 +205,7 @@ const Game = (() => {
             }
         }
 
-        const _removeListeners = () => {
-            for (let row = 0; row < Gameboard.tiles.length; row++) {
-                for (let col = 0; col < Gameboard.tiles.length; col++) {
-                    Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
-                }
-            }
-        }
-
         const _updateScores = (player) => {
-            console.log("UPDATE SCORES")
             player.score += 1;
             Domain.scoreOne.textContent = ` ${Players.playerOne.score}`;
             Domain.scoreTwo.textContent = ` ${Players.playerTwo.score}`;
@@ -220,7 +235,7 @@ const Game = (() => {
             }
         }
         _highlightTiles(victoryTiles)
-        _removeListeners()
+        removeListeners()
         _updateScores(player)
 
         Domain.victoryInfo.style.display = "flex"
@@ -232,7 +247,6 @@ const Game = (() => {
 
     // draw meaning a non-win outcome, not "draw" as in render an image
     const _drawGame = () => {
-        console.log("this game is a draw")
         Gameboard.tiles.forEach((row) => {
             for (let tile = 0; tile < Gameboard.tiles.length; tile++) {
                 row[tile].classList.add("drawTile")
@@ -276,7 +290,7 @@ const Game = (() => {
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             let row = Gameboard.gameboard[i];
             if (_checkWin(row)) {
-                return [_getWinner(row), "row"]
+                return [_getWinner(row), "row", i]
             }
         }
         // Check columns for victory
@@ -286,7 +300,7 @@ const Game = (() => {
                 colArray.push(Gameboard.gameboard[row][col])
             }
             if (_checkWin(colArray)) {
-                return [_getWinner(colArray), "column"]
+                return [_getWinner(colArray), "column", col]
             }
         }
         // Check diagonals for victory
@@ -295,14 +309,14 @@ const Game = (() => {
             diagArray.push(Gameboard.gameboard[index][index]);
         }
         if (_checkWin(diagArray)) {
-            return [_getWinner(diagArray), "diagonal"]
+            return [_getWinner(diagArray), "diagonal", null]
         }
         diagArray = [];
         for (let index = 0; index < Gameboard.gameboard.length; index++) {
             diagArray.push(Gameboard.gameboard[index][2 - index])
         }
         if (_checkWin(diagArray)) {
-            return [_getWinner(diagArray), "reverseDiagonal"]
+            return [_getWinner(diagArray), "reverseDiagonal", null]
         }
         // Check if draw
         for (let row = 0; row < Gameboard.gameboard.length; row++) {
@@ -325,8 +339,9 @@ const Game = (() => {
         let victory = checkVictory();
         let victor = victory[0]
         let victoryType = victory[1]
+        let index = victory[2]
         if (victor == Players.playerOne || victor == Players.playerTwo) {
-            _endGame(victor, victoryType)
+            _endGame(victor, victoryType, index)
         }
         if (victory[0] == "tie") {
             _drawGame()
@@ -418,7 +433,6 @@ const Game = (() => {
             // No need to return the move itself... that is already stored in {i, j} of parent minimax call
             let victoryCheck = checkVictory(board)
             if (victoryCheck[0] == Players.playerOne || victoryCheck[0] == Players.playerTwo || victoryCheck[0] == "tie") {
-                // console.log(`victory board evaluaton: ${evaluateBoard(board)}`)
                 return evaluateBoard(board)
             }
 
@@ -484,46 +498,45 @@ const Game = (() => {
         // ******************************************
         // Actually implement the AI move here...
         let move = bestMove
-        console.log(move)
-        Gameboard.gameboard[move.i][move.j] = token
-        Gameboard.render();
-
+        // If the board is complete, no moves left to make so just return
+        if (move == undefined) {
+            Gameboard.render();
+            return
+        } else {
+            console.log(move)
+            Gameboard.gameboard[move.i][move.j] = token
+            Gameboard.render();
+        }
         // ******************************************
     }
-
-
 
     const makeMove = (player) => {
         _highlightActivePlayer()
         console.log(`Player name: ${player.name}`)
-        console.log(`Player type: ${player.playerType}`)
         if (player.playerType == "human") {
-            console.log("Human: continue play")
+            addListeners();
             return "continuePlay"
         }
         else if (player.playerType == "machine") {
+            removeListeners()
             return setTimeout(function () {
                 makeMachineMove(player)
                 let victorCheck = checkVictory()
                 if (victorCheck[0] == Players.playerOne || victorCheck[0] == Players.playerTwo) {
                     console.log("VICTORY")
+                    _endGame(victorCheck[0], victorCheck[1], victorCheck[2])
+                    toggleActivePlayer();
+                } else if (victorCheck[0] == "tie") {
+                    console.log("DRAW")
+                    _drawGame();
                 } else {
                     toggleActivePlayer()
                     let player = getActivePlayer();
                     return makeMove(player)
                 }
-            }, 1000)
+            }, 200)
 
         }
-    }
-
-    const addListeners = () => {
-        Gameboard.tiles.forEach((row) => {
-            for (let col = 0; col < row.length; col++) {
-                let tile = row[col]
-                tile.addEventListener("click", inputMove);
-            }
-        })
     }
 
     return { getActivePlayer, toggleActivePlayer, inputMove, addListeners, makeMove }
@@ -535,26 +548,11 @@ const Gameplay = (() => {
 
     // Start button to show gameboard, and hide other buttons
     Domain.startButton.addEventListener("click", () => {
-
-
-
         if (Players.playerOne.playerType == null || Players.playerTwo.playerType == null) {
             alert("Please select Human or AI for both players")
             return;
         }
-
-        // Only add the listeners if one of the players is a human
-        console.log("check reached")
-        if (Players.playerOne.playerType == "human" || Players.playerTwo.playerType == "human") {
-            console.log("human found")
-            Game.addListeners();
-        }
-
-
-
-
         Header.clearHeader();
-
 
         // Commence game
         let player = Game.getActivePlayer();

@@ -1,8 +1,16 @@
+html {
+    --background-color: black;
+    --color: white;
+    --boardColor: grey;
+}
+
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    background-color: var(--background-color);
+    color: var(--color);
 }
 
 /* :root {
@@ -16,7 +24,7 @@ body {
     height: 200px;
     min-width: 50vmax;
     min-height: 50vmax;
-    background-color: antiquewhite;
+    background-color: var(--boardColor);
     display: none;
     flex-direction: column;
 }
