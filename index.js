@@ -33,61 +33,11 @@ const Players = (() => {
     return { playerOne, playerTwo }
 })()
 
-const Header = (() => {
 
-    // Functionality for human/AI buttons in header before game starts
-
-    const _toggleButtonHumanOrAI = (event) => {
-        let target = event.path[0]
-        let parent = event.path[1]
-        let siblings = [];
-        // Update button visual interface
-        for (let child = 0; child < parent.children.length; child++) {
-            if (parent.children[child] != target) {
-                siblings.push(parent.children[child])
-            }
-        }
-        target.classList.add("activeButton")
-        for (let child = 0; child < siblings.length; child++) {
-            siblings[child].classList.remove("activeButton")
-        }
-        // Assign player type (AI/Human)
-        let selectedPlayer = target.parentElement.dataset.player
-        if (selectedPlayer == "playerOne") {
-            Players.playerOne.playerType = target.dataset.playertype
-        } else if (selectedPlayer == "playerTwo") {
-            Players.playerTwo.playerType = target.dataset.playertype
-        }
-    }
-
-    // Select human or AI
-    Domain.playerButtons.forEach((player) => {
-        let buttons = player.querySelectorAll("button")
-        buttons.forEach((button) => {
-            button.addEventListener("click", _toggleButtonHumanOrAI)
-        })
-    })
-
-    const clearHeader = () => {
-        // Update visual header information
-        Domain.gameBoardHolder.style.display = "flex";
-        Domain.startButton.style.display = "none";
-        Domain.playerButtons.forEach((div) => {
-            div.style.display = "none";
-        })
-        Domain.scoreCounters.forEach((div) => {
-            div.style.display = "inline-block"
-        })
-    }
-
-
-
-    return { clearHeader }
-
-})()
 
 const Gameboard = (() => {
-    // What does a gameboard do? Store information, and update appearance for users
+
+    // 2D array to hold state of gameboard
     let gameboard = [
         [null, null, null],
         [null, null, null],
@@ -162,7 +112,7 @@ const Game = (() => {
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             Gameboard.gameboard[i].fill(null)
         }
-        // Unhighlight victory cells or unhighlight "draw" effect
+        // Unhighlight victory cells or unhighlight "draw" effect from prior game
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             for (let j = 0; j < Gameboard.gameboard.length; j++) {
                 Gameboard.tiles[i][j].classList.remove("victoryTile")
@@ -176,15 +126,16 @@ const Game = (() => {
         // Show cleared gameboard
         Gameboard.render();
 
+        // Begin next game
         let player = getActivePlayer()
         if (player.playerType == "human") {
-            Game.addListeners();
+            Game.waitForHumanMove();
         } else {
             makeMove(player)
         }
     }
 
-    const addListeners = () => {
+    const waitForHumanMove = () => {
         Gameboard.tiles.forEach((row) => {
             for (let col = 0; col < row.length; col++) {
                 let tile = row[col]
@@ -193,7 +144,7 @@ const Game = (() => {
         })
     }
 
-    const removeListeners = () => {
+    const stopWaitingForHumanMove = () => {
         for (let row = 0; row < Gameboard.tiles.length; row++) {
             for (let col = 0; col < Gameboard.tiles.length; col++) {
                 Gameboard.tiles[row][col].removeEventListener("click", Game.inputMove)
@@ -239,7 +190,7 @@ const Game = (() => {
             }
         }
         _highlightTiles(victoryTiles)
-        removeListeners()
+        stopWaitingForHumanMove()
         _updateScores(player)
 
         Domain.victoryInfo.style.display = "flex"
@@ -518,11 +469,11 @@ const Game = (() => {
         _highlightActivePlayer()
         console.log(`Player name: ${player.name}`)
         if (player.playerType == "human") {
-            addListeners();
+            waitForHumanMove();
             return "continuePlay"
         }
         else if (player.playerType == "machine") {
-            removeListeners()
+            stopWaitingForHumanMove()
             return setTimeout(function () {
                 makeMachineMove(player)
                 let victorCheck = checkVictory()
@@ -543,20 +494,62 @@ const Game = (() => {
         }
     }
 
-    return { getActivePlayer, toggleActivePlayer, inputMove, addListeners, makeMove }
+    return { getActivePlayer, toggleActivePlayer, inputMove, waitForHumanMove, makeMove }
 })()
 
 Gameboard.render();
 
 const Gameplay = (() => {
 
-    // Start button to show gameboard, and hide other buttons
+    // Functionality for human/AI buttons in header before game starts
+
+    const _toggleButtonHumanOrAI = (event) => {
+        let target = event.path[0]
+        let parent = event.path[1]
+        let siblings = [];
+        // Update button visual interface
+        for (let child = 0; child < parent.children.length; child++) {
+            if (parent.children[child] != target) {
+                siblings.push(parent.children[child])
+            }
+        }
+        target.classList.add("activeButton")
+        for (let child = 0; child < siblings.length; child++) {
+            siblings[child].classList.remove("activeButton")
+        }
+        // Assign player type (AI/Human)
+        let selectedPlayer = target.parentElement.dataset.player
+        if (selectedPlayer == "playerOne") {
+            Players.playerOne.playerType = target.dataset.playertype
+        } else if (selectedPlayer == "playerTwo") {
+            Players.playerTwo.playerType = target.dataset.playertype
+        }
+    }
+
+    // Select human or AI
+    Domain.playerButtons.forEach((player) => {
+        let buttons = player.querySelectorAll("button")
+        buttons.forEach((button) => {
+            button.addEventListener("click", _toggleButtonHumanOrAI)
+        })
+    })
+
+    // Start button to show gameboard, hide other buttons and begin game
     Domain.startButton.addEventListener("click", () => {
         if (Players.playerOne.playerType == null || Players.playerTwo.playerType == null) {
             alert("Please select Human or AI for both players")
             return;
         }
-        Header.clearHeader();
+
+        // Update visual header information
+        Domain.gameBoardHolder.style.display = "flex";
+        Domain.startButton.style.display = "none";
+        Domain.playerButtons.forEach((div) => {
+            div.style.display = "none";
+        })
+        Domain.scoreCounters.forEach((div) => {
+            div.style.display = "inline-block"
+        })
 
         // Commence game
         let player = Game.getActivePlayer();
