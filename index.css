@@ -1,7 +1,10 @@
 html {
-    --background-color: black;
-    --color: white;
-    --boardColor: grey;
+    --background-color: #E4DFDA;
+    --color: #48A9A6;
+    --boardColor: #E4DFDA;
+    --buttonHighlight: #d4B483;
+    --playerOneColor: #4281A4;
+    --playerTwoColor: #C1666B;
 }
 
 body {
@@ -12,10 +15,6 @@ body {
     background-color: var(--background-color);
     color: var(--color);
 }
-
-/* :root {
-    --margin: 2%;
-} */
 
 #gameBoardHolder {
     justify-content: center;
@@ -30,8 +29,8 @@ body {
 }
 
 #gameBoard {
-    width: 70%;
-    height: 70%;
+    width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
@@ -72,7 +71,7 @@ body {
 }
 
 .activeButton {
-    background-color: orange;
+    background-color: var(--buttonHighlight);
 }
 
 #startButton {
@@ -90,6 +89,14 @@ body {
     font-size: 4rem;
 
     --border: 2px solid black;
+}
+
+.playerOneTile {
+    color: var(--playerOneColor);
+}
+
+.playerTwoTile {
+    color: var(--playerTwoColor);
 }
 
 .victoryTile {

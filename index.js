@@ -61,9 +61,11 @@ const Gameboard = (() => {
             for (let col = 0; col < gameboard.length; col++) {
                 if (gameboard[row][col] == true) {
                     tiles[row][col].textContent = "X"
+                    tiles[row][col].classList.add("playerOneTile")
                     tiles[row][col].removeEventListener("click", Game.inputMove)
                 } else if (gameboard[row][col] == false) {
                     tiles[row][col].textContent = "O"
+                    tiles[row][col].classList.add("playerTwoTile")
                     tiles[row][col].removeEventListener("click", Game.inputMove)
                 } else {
                     tiles[row][col].textContent = " "
