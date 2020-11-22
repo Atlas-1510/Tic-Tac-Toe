@@ -4,6 +4,7 @@ const Domain = (() => {
     const gameBoardDiv = document.getElementById("gameBoard");
     const playersDiv = document.getElementById("playersDiv")
     const victoryInfo = document.getElementById("victoryInfo")
+    const emptyVictoryInfo = document.getElementById("emptyVictoryInfo")
     const victoryAlert = document.getElementById("victoryAlert")
     const playAgain = document.getElementById("playAgain")
     const startButton = document.getElementById("startButton")
@@ -14,7 +15,7 @@ const Domain = (() => {
     const scoreTwo = document.getElementById("scoreTwo")
 
     return {
-        playersDiv, victoryInfo, victoryAlert, playAgain, startButton, gameBoardHolder, playerButtons,
+        playersDiv, victoryInfo, emptyVictoryInfo, victoryAlert, playAgain, startButton, gameBoardHolder, playerButtons,
         scoreCounters, scoreOne, scoreTwo, gameBoardDiv
     }
 })()
@@ -114,16 +115,21 @@ const Game = (() => {
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             Gameboard.gameboard[i].fill(null)
         }
-        // Unhighlight victory cells or unhighlight "draw" effect from prior game
+        // Remove styling effects on gameboard
         for (let i = 0; i < Gameboard.gameboard.length; i++) {
             for (let j = 0; j < Gameboard.gameboard.length; j++) {
                 Gameboard.tiles[i][j].classList.remove("victoryTile")
                 Gameboard.tiles[i][j].classList.remove("drawTile")
+                Gameboard.tiles[i][j].classList.remove("playerOneTile")
+                Gameboard.tiles[i][j].classList.remove("playerTwoTile")
+                Gameboard.tiles[i][j].classList.remove("victoryTilePlayerOne")
+                Gameboard.tiles[i][j].classList.remove("victoryTilePlayerTwo")
             }
         }
         // Hide victoryInfo and reveal playerDiv
         Domain.playersDiv.style.display = "flex"
         Domain.victoryInfo.style.display = "none"
+        Domain.emptyVictoryInfo.style.display = "flex"
 
         // Show cleared gameboard
         Gameboard.render();
@@ -157,9 +163,10 @@ const Game = (() => {
 
     const _endGame = (victory) => {
         // player, victoryType, index
-        const _highlightTiles = (tiles) => {
+        const _highlightTiles = (tiles, player) => {
             for (let tile = 0; tile < tiles.length; tile++) {
-                tiles[tile].classList.add("victoryTile")
+                let tileHighlightColor = (player == Players.playerOne) ? "victoryTilePlayerOne" : "victoryTilePlayerTwo"
+                tiles[tile].classList.add(tileHighlightColor)
             }
         }
 
@@ -192,11 +199,12 @@ const Game = (() => {
                 victoryTiles.push(Gameboard.tiles[index][2 - index])
             }
         }
-        _highlightTiles(victoryTiles)
+        _highlightTiles(victoryTiles, victory.winner)
         stopWaitingForHumanMove()
         _updateScores(victory.winner)
 
         Domain.victoryInfo.style.display = "flex"
+        Domain.emptyVictoryInfo.style.display = "none"
         Domain.victoryAlert.textContent = `${victory.winner.name} won the game!`
 
         // Play again button
@@ -212,6 +220,7 @@ const Game = (() => {
         })
         Domain.victoryAlert.textContent = `Draw!`
         Domain.victoryInfo.style.display = "flex"
+        Domain.emptyVictoryInfo.style.display = "none"
         Domain.playAgain.addEventListener("click", _rematch)
         return "draw"
     }
@@ -493,6 +502,7 @@ const Game = (() => {
                 } else if (victorCheck.winner == "tie") {
                     console.log("DRAW")
                     _drawGame();
+                    toggleActivePlayer();
                 } else {
                     toggleActivePlayer()
                     let player = getActivePlayer();

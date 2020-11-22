@@ -1,10 +1,13 @@
 html {
-    --background-color: #E4DFDA;
-    --color: #48A9A6;
-    --boardColor: #E4DFDA;
-    --buttonHighlight: #d4B483;
-    --playerOneColor: #4281A4;
-    --playerTwoColor: #C1666B;
+    --background-color: #ddfff7;
+    --color: #923a56;
+    --boardColor: #ddfff7;
+    --buttonHighlight: #7FB800;
+    --playerOneColor: #00A6ED;
+    --playerTwoColor: #F6511D;
+    --victoryInfoHeight: 100px;
+    --victoryTilePlayerOne: #99E0FF;
+    --victoryTilePlayerTwo: #F99576;
 }
 
 body {
@@ -19,10 +22,10 @@ body {
 #gameBoardHolder {
     justify-content: center;
     align-items: center;
-    width: 200px;
-    height: 200px;
-    min-width: 50vmax;
-    min-height: 50vmax;
+    width: 160px;
+    height: 160px;
+    min-width: 30vmax;
+    min-height: 30vmax;
     background-color: var(--boardColor);
     display: none;
     flex-direction: column;
@@ -42,7 +45,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    --margin: 2%;
+    --margin: 5% 0 5% 0;
 }
 
 #playersDiv {
@@ -54,12 +57,12 @@ body {
 .player {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 .playerButtons {
     display: flex;
     flex-direction: column;
-    margin: var(--margin)
 }
 
 .playerButtons > button {
@@ -75,7 +78,7 @@ body {
 }
 
 #startButton {
-    margin: var(--margin)
+    margin: 2%
 }
 
 .activeTitle {
@@ -99,9 +102,14 @@ body {
     color: var(--playerTwoColor);
 }
 
-.victoryTile {
-    background-color: aqua;
+.victoryTilePlayerOne {
+    background-color: var(--victoryTilePlayerOne);
 }
+
+.victoryTilePlayerTwo {
+    background-color: var(--victoryTilePlayerTwo);
+}
+
 
 .drawTile {
     background: rgba(255, 93, 93, 0.459);
@@ -124,8 +132,16 @@ body {
 #victoryInfo {
     display: none;
     flex-direction: column;
+    height: var(--victoryInfoHeight);
+    align-items: center;
+}
+
+#emptyVictoryInfo {
+    min-height: var(--victoryInfoHeight);
+    min-width: 100%;
 }
 
 #playAgain {
     display: inherit;
+    /* max-width: 5vmax; */
 }
