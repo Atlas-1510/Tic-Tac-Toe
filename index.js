@@ -137,7 +137,7 @@ const Game = (() => {
         // Begin next game
         let player = getActivePlayer()
         if (player.playerType == "human") {
-            Game.waitForHumanMove();
+            waitForHumanMove();
         } else {
             makeMove(player)
         }
@@ -346,7 +346,7 @@ const Game = (() => {
 
 
         ////// MINIMAX ALGORITHM //////
-        const minimax = (board, isMaximisingPlayer) => {
+        const minimax = (board, isMaximisingPlayer, alpha, beta) => {
 
             const evaluateBoard = (board) => {
                 // Analyse gameboard for victory
@@ -402,44 +402,64 @@ const Game = (() => {
                 return 0;
             }
 
-            let bestScore = (isMaximisingPlayer) ? -Infinity : Infinity
-            let token = isMaximisingPlayer
-
             // If there are no available moves, it is a terminal state (end of branch)
             // just evaluate the state of the board and return the score
-            // No need to return the move itself... that is already stored in {i, j} of parent minimax call
+            // No need to return the move itself, that is already stored in {i, j} of parent minimax call
             let victoryCheck = checkVictory(board)
             if (victoryCheck.winner == Players.playerOne || victoryCheck.winner == Players.playerTwo || victoryCheck.winner == "tie") {
                 return evaluateBoard(board)
             }
 
-            // Assuming there are available moves, iterate over each possible move
-            for (let i = 0; i < board.length; i++) {
-                for (let j = 0; j < board.length; j++) {
-                    // For each gameboard tile
-                    if (board[i][j] == null) {
-                        // If the tile is empty, make the move
-                        board[i][j] = token
-                        // Evaluate the score of this move
-                        let score = minimax(board, !isMaximisingPlayer)
-                        // If this is the best move found, remember the **SCORE**, not the move!
-                        // The i, j move data is contained in the parent invocation of minimax, just need to return the score
-                        // to decide whether to retain that i,j information or not
-                        if (isMaximisingPlayer) {
-                            if (score > bestScore) {
-                                bestScore = score
+            if (isMaximisingPlayer) {
+                let maxEval = -Infinity
+                let token = isMaximisingPlayer
+                for (let i = 0; i < board.length; i++) {
+                    for (let j = 0; j < board.length; j++) {
+                        if (board[i][j] == null) {
+                            board[i][j] = token
+                            let score = minimax(board, !isMaximisingPlayer, alpha, beta)
+                            board[i][j] = null
+                            maxEval = Math.max(maxEval, score)
+                            alpha = Math.max(alpha, score)
+                            if (beta <= alpha) {
+                                break
                             }
-                        } else if (!isMaximisingPlayer) {
-                            if (score < bestScore) {
-                                bestScore = score
-                            }
+                            board[i][j] = null
                         }
-                        // Unmake the move
-                        board[i][j] = null
                     }
                 }
+                return maxEval
             }
-            return bestScore
+
+            else {
+                let minEval = Infinity
+                let token = isMaximisingPlayer
+
+                // Assuming there are available moves, iterate over each possible move
+                for (let i = 0; i < board.length; i++) {
+                    for (let j = 0; j < board.length; j++) {
+                        // For each gameboard tile
+                        if (board[i][j] == null) {
+                            // If the tile is empty, make the move
+                            board[i][j] = token
+                            // Evaluate the score of this move
+                            let score = minimax(board, !isMaximisingPlayer, alpha, beta)
+                            // Unmake the move
+                            board[i][j] = null
+                            // If this is the best move found, remember the **SCORE**, not the move!
+                            // The i, j move data is contained in the parent invocation of minimax, just need to return the score
+                            // to decide whether to retain that i,j information or not
+                            minEval = Math.min(minEval, score)
+                            beta = Math.min(beta, score)
+                            if (beta <= alpha) {
+                                break
+                            }
+
+                        }
+                    }
+                }
+                return minEval
+            }
         }
         ////// MINIMAX ALGORITHM //////
 
@@ -455,7 +475,7 @@ const Game = (() => {
                     // If the tile is empty, make the move
                     gameboard[i][j] = token
                     // Evaluate the score of this move
-                    let score = minimax(gameboard, !isMaximisingPlayer)
+                    let score = minimax(gameboard, !isMaximisingPlayer, -Infinity, Infinity)
                     // If this is the best move found, remember the move
                     if (isMaximisingPlayer) {
                         if (score > bestScore) {
@@ -497,11 +517,9 @@ const Game = (() => {
                 makeMachineMove(player)
                 let victorCheck = checkVictory()
                 if (victorCheck.winner == Players.playerOne || victorCheck.winner == Players.playerTwo) {
-                    console.log("VICTORY")
                     _endGame(victorCheck)
                     toggleActivePlayer();
                 } else if (victorCheck.winner == "tie") {
-                    console.log("DRAW")
                     _drawGame();
                     toggleActivePlayer();
                 } else {
