@@ -2,12 +2,13 @@ html {
     --background-color: #ddfff7;
     --color: #923a56;
     --boardColor: #ddfff7;
-    --buttonHighlight: #7FB800;
-    --playerOneColor: #00A6ED;
-    --playerTwoColor: #F6511D;
+    --buttonHighlight: #b5b3d1;
+    --playerOneColor: #456990;
+    --playerTwoColor: #f45b69;
     --victoryInfoHeight: 100px;
     --victoryTilePlayerOne: #99E0FF;
     --victoryTilePlayerTwo: #F99576;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 body {
@@ -17,6 +18,22 @@ body {
     flex-direction: column;
     background-color: var(--background-color);
     color: var(--color);
+}
+
+button {
+    border: 0.1em solid black;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-weight: 300;
+    color: black;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+button:hover {
+    color: #e1f1f4;
+    background-color: #b5b3d1;
 }
 
 #gameBoardHolder {
@@ -82,7 +99,7 @@ body {
 }
 
 .activeTitle {
-    background-color: pink;
+    text-shadow: 0 0 2px var(--playerOneColor), 0 0 2px var(--playerTwoColor);
 }
 
 .tile {
@@ -90,8 +107,12 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 4rem;
-
     --border: 2px solid black;
+    transition: all 0.2s;
+}
+
+.tile:hover {
+    background-color: #cca7dc;
 }
 
 .playerOneTile {
@@ -143,5 +164,4 @@ body {
 
 #playAgain {
     display: inherit;
-    /* max-width: 5vmax; */
 }

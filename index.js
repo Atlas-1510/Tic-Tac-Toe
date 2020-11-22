@@ -323,6 +323,7 @@ const Game = (() => {
             _endGame(victory)
         } else if (victory.winner == "tie") {
             _drawGame()
+            toggleActivePlayer();
         } else {
             toggleActivePlayer();
             _highlightActivePlayer();
@@ -513,7 +514,7 @@ const Game = (() => {
         }
     }
 
-    return { getActivePlayer, toggleActivePlayer, inputMove, waitForHumanMove, makeMove }
+    return { getActivePlayer, toggleActivePlayer, inputMove, makeMove }
 })()
 
 const StartScreen = (() => {
