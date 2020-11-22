@@ -540,8 +540,9 @@ const StartScreen = (() => {
     // Functionality for human/AI buttons in header before game starts
 
     const _toggleButtonHumanOrAI = (event) => {
-        let target = event.path[0]
-        let parent = event.path[1]
+        console.log(event)
+        let target = event.target
+        let parent = event.target.parentElement
         let siblings = [];
         // Update button visual interface
         for (let child = 0; child < parent.children.length; child++) {
