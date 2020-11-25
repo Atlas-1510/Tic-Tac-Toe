@@ -571,7 +571,7 @@ const StartScreen = (() => {
 
     // Start button to show gameboard, hide other buttons and begin game
     Domain.startButton.addEventListener("click", () => {
-        if (Players.playerOne.playerType === null || Players.playerTwo.playerType === null) {
+        if (Players.playerOne.playerType == null || Players.playerTwo.playerType == null) {
             alert("Please select Human or AI for both players")
             return;
         }
