@@ -346,18 +346,18 @@ const Game = (() => {
 
 
         ////// MINIMAX ALGORITHM //////
-        const minimax = (board, isMaximisingPlayer, alpha, beta) => {
-
-            const evaluateBoard = (board) => {
+        const minimax = (board, isMaximisingPlayer, alpha, beta, depth) => {
+            // console.log(`Minimax : ${depth}`)
+            const evaluateBoard = (board, depth, isMaximisingPlayer) => {
                 // Analyse gameboard for victory
                 // Check rows for victory
                 for (let i = 0; i < board.length; i++) {
                     let row = board[i];
                     if (row[0] != null && row[0] === row[1] && row[1] === row[2]) {
                         if (row[0]) {
-                            return 10
+                            return 10 - depth
                         } else {
-                            return -10
+                            return -10 + depth
                         }
                     }
                 }
@@ -369,9 +369,9 @@ const Game = (() => {
                     }
                     if (colArray[0] != null && colArray[0] === colArray[1] && colArray[1] === colArray[2]) {
                         if (colArray[0]) {
-                            return 10
+                            return 10 - depth
                         } else {
-                            return -10
+                            return -10 + depth
                         }
                     }
                 }
@@ -383,9 +383,9 @@ const Game = (() => {
                 }
                 if (diagArray[0] != null && diagArray[0] === diagArray[1] && diagArray[1] === diagArray[2]) {
                     if (diagArray[0]) {
-                        return 10
+                        return 10 - depth
                     } else {
-                        return -10
+                        return -10 + depth
                     }
                 }
                 diagArray = [];
@@ -394,12 +394,12 @@ const Game = (() => {
                 }
                 if (diagArray[0] != null && diagArray[0] === diagArray[1] && diagArray[1] === diagArray[2]) {
                     if (diagArray[0]) {
-                        return 10
+                        return 10 - depth
                     } else {
-                        return -10
+                        return -10 + depth
                     }
                 }
-                return 0;
+                return 0
             }
 
             // If there are no available moves, it is a terminal state (end of branch)
@@ -407,7 +407,7 @@ const Game = (() => {
             // No need to return the move itself, that is already stored in {i, j} of parent minimax call
             let victoryCheck = checkVictory(board)
             if (victoryCheck.winner === Players.playerOne || victoryCheck.winner === Players.playerTwo || victoryCheck.winner === "tie") {
-                return evaluateBoard(board)
+                return evaluateBoard(board, depth, isMaximisingPlayer)
             }
 
             if (isMaximisingPlayer) {
@@ -417,7 +417,7 @@ const Game = (() => {
                     for (let j = 0; j < board.length; j++) {
                         if (board[i][j] === null) {
                             board[i][j] = token
-                            let score = minimax(board, !isMaximisingPlayer, alpha, beta)
+                            let score = minimax(board, !isMaximisingPlayer, alpha, beta, depth + 1)
                             board[i][j] = null
                             maxEval = Math.max(maxEval, score)
                             alpha = Math.max(alpha, score)
@@ -443,7 +443,7 @@ const Game = (() => {
                             // If the tile is empty, make the move
                             board[i][j] = token
                             // Evaluate the score of this move
-                            let score = minimax(board, !isMaximisingPlayer, alpha, beta)
+                            let score = minimax(board, !isMaximisingPlayer, alpha, beta, depth + 1)
                             // Unmake the move
                             board[i][j] = null
                             // If this is the best move found, remember the **SCORE**, not the move!
@@ -475,7 +475,7 @@ const Game = (() => {
                     // If the tile is empty, make the move
                     gameboard[i][j] = token
                     // Evaluate the score of this move
-                    let score = minimax(gameboard, !isMaximisingPlayer, -Infinity, Infinity)
+                    let score = minimax(gameboard, !isMaximisingPlayer, -Infinity, Infinity, 0)
                     // If this is the best move found, remember the move
                     if (isMaximisingPlayer) {
                         if (score > bestScore) {
