@@ -454,7 +454,6 @@ const Game = (() => {
                             if (beta <= alpha) {
                                 break
                             }
-
                         }
                     }
                 }
